@@ -1,0 +1,40 @@
+@import "bootstrap-icons/font/bootstrap-icons.css";
+@import "remixicon/fonts/remixicon.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --prim: #0f0505;
+  --prim-light: #fffffd;
+  --second: #fbff01;
+  --third: #d49204 ;
+  --white: #fff;
+  --black: #000;
+  --gradient: linear-gradient(90deg, #00b7ff 1.9%, #0300a3 85.96%);
+
+  --Golostext: 'Golos Text', sans-serif;
+  --Audiowide: 'Audiowide', sans-serif;
+  --Lufga: 'Lufga', sans-serif;
+
+  --transition-regular: 0.3s;
+  --transition-slow: 0.6s
+}
+
+.GolosText {
+  font-family: var(--Golostext);
+}
+
+.Audiowide {
+  font-family: var(--Audiowide);
+}
+
+.Lufga {
+  font-family: var(--Lufga);
+}
+
+body {
+  background-color: var(--prim-light);
+  overflow-x: hidden !important; 
+}

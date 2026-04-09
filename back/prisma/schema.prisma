@@ -1,0 +1,69 @@
+// This is your Prisma schema file for IF-Burguer
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Usuario {
+  id      Int     @id @default(autoincrement())
+  nome    String  @db.VarChar(45)
+  pedidos Pedido[]
+
+  @@map("usuarios")
+}
+
+model Pedido {
+  id            Int          @id @default(autoincrement())
+  data          DateTime     @default(now())
+  usuarioId     Int
+  usuario       Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  itensPedido   ItemPedido[]
+
+  @@index([usuarioId])
+  @@map("pedido")
+}
+
+model ItemPedido {
+  pedidoId   Int
+  produtoId  Int
+  quantidade Int
+  preco      Decimal @db.Decimal(8, 2)
+  pedido     Pedido  @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produto    Produto @relation(fields: [produtoId], references: [id], onDelete: Restrict)
+
+  @@id([pedidoId, produtoId])
+  @@index([produtoId])
+  @@map("item_pedido")
+}
+
+model Produto {
+  id            Int          @id @default(autoincrement())
+  titulo        String       @db.VarChar(45)
+  categoria     String       @db.VarChar(30)
+  descricao     String       @db.VarChar(255)
+  foto          String       @db.VarChar(255)
+  top           Int          @default(0) @db.TinyInt()
+  avaliacao     Decimal      @default(0) @db.Decimal(2, 1)
+  freteGratis   Int          @default(0) @db.TinyInt()
+  preco         Decimal      @db.Decimal(8, 2)
+  desconto      Int          @default(0)
+  fimDesconto   DateTime?
+  itensPedido   ItemPedido[]
+
+  @@map("produto")
+}
+
+model Localizacao {
+  id        Int     @id @default(autoincrement())
+  titulo    String  @db.VarChar(45)
+  destaque  Int     @default(0) @db.TinyInt()
+
+  @@map("localizacao")
+}

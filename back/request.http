@@ -1,0 +1,17 @@
+@backendBaseUrl = http://localhost:3334/api/v1
+
+### Cadastrar produto (NestJS + Prisma)
+POST {{backendBaseUrl}}/produtos
+Content-Type: application/json
+
+{
+  "titulo": "X-Burger",
+  "categoria": "Burgers",
+  "descricao": "Pão, carne, queijo",
+  "foto": "https://example.com/x-burger.jpg",
+  "preco": 29.9,
+  "top": 0,
+  "avaliacao": 0,
+  "freteGratis": 0,
+  "desconto": 0
+}
