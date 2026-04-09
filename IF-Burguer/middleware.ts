@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 
 const PUBLIC_ROUTES = ['/login', '/cadastro']
 const INTERNAL_PREFIXES = ['/api', '/_next']
+const AUTH_TOKEN_COOKIE = 'ifburger_token'
 
 function isPublicFile(pathname: string) {
     return pathname.includes('.')
@@ -19,7 +20,7 @@ export function middleware(request: NextRequest) {
     const isPublicRoute = PUBLIC_ROUTES.some(
         route => pathname === route || pathname.startsWith(`${route}/`)
     )
-    const isAuthenticated = request.cookies.get('ifburger_auth')?.value === '1'
+    const isAuthenticated = Boolean(request.cookies.get(AUTH_TOKEN_COOKIE)?.value)
 
     if (!isAuthenticated && !isPublicRoute) {
         const loginUrl = request.nextUrl.clone()

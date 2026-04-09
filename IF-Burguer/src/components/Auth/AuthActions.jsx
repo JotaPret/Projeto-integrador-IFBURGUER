@@ -7,6 +7,9 @@ import { LogOut, UserRound } from 'lucide-react'
 const AUTH_COOKIE = 'ifburger_auth'
 const USER_COOKIE = 'ifburger_user'
 
+const BACKEND_BASE_URL =
+    process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3334/api/v1'
+
 function readCookie(name) {
     if (typeof document === 'undefined') {
         return ''
@@ -41,6 +44,11 @@ export default function AuthActions() {
     })()
 
     const handleLogout = () => {
+        fetch(`${BACKEND_BASE_URL}/auth/logout`, {
+            method: 'POST',
+            credentials: 'include',
+        }).catch(() => {})
+
         document.cookie = `${AUTH_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
         document.cookie = `${USER_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
         router.push('/login')

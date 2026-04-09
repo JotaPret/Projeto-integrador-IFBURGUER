@@ -7,26 +7,32 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 export class UsuariosService {
   constructor(private prisma: PrismaService) {}
 
+  private readonly safeUsuarioSelect = {
+    id: true,
+    nome: true,
+    email: true,
+    telefone: true,
+    createdAt: true,
+    pedidos: true,
+  } as const;
+
   create(data: CreateUsuarioDto) {
     return this.prisma.usuario.create({
       data,
+      select: this.safeUsuarioSelect,
     });
   }
 
   findAll() {
     return this.prisma.usuario.findMany({
-      include: {
-        pedidos: true,
-      },
+      select: this.safeUsuarioSelect,
     });
   }
 
   findOne(id: number) {
     return this.prisma.usuario.findUnique({
       where: { id },
-      include: {
-        pedidos: true,
-      },
+      select: this.safeUsuarioSelect,
     });
   }
 
@@ -34,6 +40,7 @@ export class UsuariosService {
     return this.prisma.usuario.update({
       where: { id },
       data,
+      select: this.safeUsuarioSelect,
     });
   }
 

@@ -374,10 +374,6 @@ export type PedidoUncheckedUpdateManyWithoutUsuarioNestedInput = {
   deleteMany?: Prisma.PedidoScalarWhereInput | Prisma.PedidoScalarWhereInput[]
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
-}
-
 export type PedidoCreateNestedOneWithoutItensPedidoInput = {
   create?: Prisma.XOR<Prisma.PedidoCreateWithoutItensPedidoInput, Prisma.PedidoUncheckedCreateWithoutItensPedidoInput>
   connectOrCreate?: Prisma.PedidoCreateOrConnectWithoutItensPedidoInput

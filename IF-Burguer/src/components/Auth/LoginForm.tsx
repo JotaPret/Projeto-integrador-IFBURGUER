@@ -1,24 +1,15 @@
 'use client'
 
 import type { FormEvent } from 'react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { Flame, Lock, Mail } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 
-function readCookie(name: string) {
-    if (typeof document === 'undefined') {
-        return ''
-    }
-
-    const value = document.cookie
-        .split('; ')
-        .find(cookie => cookie.startsWith(`${name}=`))
-
-    return value ? value.split('=')[1] : ''
-}
+const BACKEND_BASE_URL =
+    process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3334/api/v1'
 
 function sanitizeRedirect(value: string | null) {
     if (!value || !value.startsWith('/')) {
@@ -46,13 +37,7 @@ export default function LoginForm() {
             ? '/cadastro'
             : `/cadastro?redirect=${encodeURIComponent(redirectPath)}`
 
-    useEffect(() => {
-        if (readCookie('ifburger_auth') === '1') {
-            router.replace(redirectPath)
-        }
-    }, [redirectPath, router])
-
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         setError('')
 
@@ -63,11 +48,50 @@ export default function LoginForm() {
         }
 
         setIsSubmitting(true)
-        document.cookie = `ifburger_auth=1; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax`
-        document.cookie = `ifburger_user=${encodeURIComponent(normalizedEmail)}; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax`
 
-        router.replace(redirectPath)
-        router.refresh()
+        try {
+            const response = await fetch(`${BACKEND_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: normalizedEmail,
+                    senha: password,
+                }),
+            })
+
+            if (!response.ok) {
+                let message = 'E-mail ou senha invalidos.'
+                try {
+                    const payload = await response.json()
+                    const rawMessage = payload?.message
+                    if (Array.isArray(rawMessage)) {
+                        message = rawMessage.join(' | ')
+                    } else if (typeof rawMessage === 'string') {
+                        message = rawMessage
+                    }
+                } catch {
+                    // ignore
+                }
+
+                setError(message)
+                return
+            }
+
+            await response.json()
+
+            document.cookie = `ifburger_auth=1; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax`
+            document.cookie = `ifburger_user=${encodeURIComponent(normalizedEmail)}; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax`
+
+            router.replace(redirectPath)
+            router.refresh()
+        } catch {
+            setError('Falha de rede ao entrar. Verifique o backend e tente novamente.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -110,7 +134,7 @@ export default function LoginForm() {
 
                 {hasNewRegistration && (
                     <p className='text-sm text-green-300 bg-green-500/10 border border-green-500/30 rounded-xl px-3 py-2 mt-4'>
-                        Cadastro visual concluido para {migratedFirstName}. Agora e so entrar na conta.
+                        Cadastro concluido para {migratedFirstName}. Agora e so entrar na conta.
                     </p>
                 )}
 
@@ -168,7 +192,7 @@ export default function LoginForm() {
                 </p>
 
                 <p className='text-xs text-gray-500 mt-6'>
-                    Esta autenticacao usa sessao local para demonstracao.
+                    Autenticacao via cookie (token HttpOnly gerenciado pelo backend).
                 </p>
             </div>
         </section>

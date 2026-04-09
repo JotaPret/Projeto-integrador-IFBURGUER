@@ -1,5 +1,25 @@
 @backendBaseUrl = http://localhost:3334/api/v1
 
+### Registrar usuario (Auth)
+POST {{backendBaseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "nome": "Joao Silva",
+  "email": "joao@ifburger.com",
+  "telefone": "(11) 99999-9999",
+  "senha": "123456"
+}
+
+### Login (Auth)
+POST {{backendBaseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@ifburger.com",
+  "senha": "123456"
+}
+
 ### Cadastrar produto (NestJS + Prisma)
 POST {{backendBaseUrl}}/produtos
 Content-Type: application/json

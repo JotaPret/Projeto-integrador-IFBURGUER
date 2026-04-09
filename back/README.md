@@ -76,6 +76,10 @@ O servidor iniciará em `http://localhost:3333/api/v1`
 
 ## 📚 Rotas da API
 
+### Auth
+- `POST /api/v1/auth/register` - Criar conta (nome, email, telefone opcional, senha)
+- `POST /api/v1/auth/login` - Entrar (email e senha) e receber token JWT
+
 ### Usuários
 - `GET /api/v1/usuarios` - Listar todos os usuários
 - `POST /api/v1/usuarios` - Criar novo usuário

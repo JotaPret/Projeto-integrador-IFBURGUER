@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { LockKeyhole, Mail, Phone, UserRound } from 'lucide-react'
 
+const BACKEND_BASE_URL =
+    process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3334/api/v1'
+
 function sanitizeRedirect(value: string | null) {
     if (!value || !value.startsWith('/')) {
         return '/'
@@ -31,7 +34,7 @@ export default function RegisterForm() {
             ? '/login'
             : `/login?redirect=${encodeURIComponent(redirectPath)}`
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         setError('')
 
@@ -55,15 +58,53 @@ export default function RegisterForm() {
 
         setIsSubmitting(true)
 
-        const params = new URLSearchParams()
-        params.set('registered', '1')
-        params.set('name', normalizedName)
-        params.set('email', normalizedEmail)
-        if (redirectPath !== '/') {
-            params.set('redirect', redirectPath)
-        }
+        try {
+            const response = await fetch(`${BACKEND_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    nome: normalizedName,
+                    email: normalizedEmail,
+                    telefone: phone.trim() ? phone.trim() : undefined,
+                    senha: password,
+                }),
+            })
 
-        router.push(`/login?${params.toString()}`)
+            if (!response.ok) {
+                let message = 'Nao foi possivel criar sua conta. Tente novamente.'
+                try {
+                    const payload = await response.json()
+                    const rawMessage = payload?.message
+                    if (Array.isArray(rawMessage)) {
+                        message = rawMessage.join(' | ')
+                    } else if (typeof rawMessage === 'string') {
+                        message = rawMessage
+                    }
+                } catch {
+                    // ignore
+                }
+
+                setError(message)
+                return
+            }
+
+            const params = new URLSearchParams()
+            params.set('registered', '1')
+            params.set('name', normalizedName)
+            params.set('email', normalizedEmail)
+            if (redirectPath !== '/') {
+                params.set('redirect', redirectPath)
+            }
+
+            router.push(`/login?${params.toString()}`)
+        } catch {
+            setError('Falha de rede ao cadastrar. Verifique o backend e tente novamente.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -179,7 +220,7 @@ export default function RegisterForm() {
                         Cadastro feito para abrir apetite.
                     </h1>
                     <p className='mt-4 text-white/85 text-sm max-w-sm'>
-                        Por enquanto, este cadastro e visual: os dados migram para o login e o banco sera integrado na proxima etapa.
+                        Seu cadastro sera salvo e voce podera entrar com e-mail e senha.
                     </p>
                 </div>
 
