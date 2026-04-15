@@ -112,9 +112,12 @@ export default function Carrinho() {
                                 </div>
                             </div>
 
-                            <button className='w-full h-12 rounded-xl border-none bg-[#E31837] text-white text-sm font-black cursor-pointer hover:opacity-90 transition-opacity mt-5'>
+                            <Link
+                                href='/FinalizarCompra'
+                                className='w-full h-12 rounded-xl border-none bg-[#E31837] text-white text-sm font-black cursor-pointer hover:opacity-90 transition-opacity mt-5 flex items-center justify-center no-underline'
+                            >
                                 Finalizar pedido
-                            </button>
+                            </Link>
 
                             <button
                                 onClick={clearCart}

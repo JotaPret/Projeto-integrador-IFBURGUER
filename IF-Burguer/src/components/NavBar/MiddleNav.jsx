@@ -41,11 +41,6 @@ export default function MiddleNav() {
 
                 {/* Right Side */}
                 <div className='flex items-center gap-4'>
-                    {/* Theme Toggle */}
-                    <button className='text-white text-xl hover:text-[var(--second)] transition-colors cursor-pointer bg-transparent border-none'>
-                        <i className='bi bi-brightness-high'></i>
-                    </button>
-
                     {/* Cart */}
                     <button
                         onClick={toggleCart}
