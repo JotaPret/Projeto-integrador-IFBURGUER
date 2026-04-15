@@ -52,6 +52,8 @@ export default function FinalizarCompra() {
     const [observacoes, setObservacoes] = useState('')
     const [pagamento, setPagamento] = useState<PaymentMethod>('pix')
 
+    const [showEntregaConcluida, setShowEntregaConcluida] = useState(false)
+
     useEffect(() => {
         let isActive = true
 
@@ -86,6 +88,20 @@ export default function FinalizarCompra() {
         }
     }, [])
 
+    useEffect(() => {
+        if (!showEntregaConcluida) {
+            return
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            router.push('/')
+        }, 2500)
+
+        return () => {
+            window.clearTimeout(timeoutId)
+        }
+    }, [showEntregaConcluida, router])
+
     const entrega = items.length > 0 ? TAXA_ENTREGA : 0
     const total = subtotal + entrega
 
@@ -96,12 +112,12 @@ export default function FinalizarCompra() {
         endereco.trim().length > 0
 
     const handleConfirm = () => {
-        if (!canConfirm) {
+        if (!canConfirm || showEntregaConcluida) {
             return
         }
 
         clearCart()
-        router.push('/')
+        setShowEntregaConcluida(true)
     }
 
     return (
@@ -280,10 +296,12 @@ export default function FinalizarCompra() {
                             </div>
 
                             <button
-                                disabled={!canConfirm}
+                                disabled={!canConfirm || showEntregaConcluida}
                                 onClick={handleConfirm}
                                 className={`w-full h-12 rounded-xl border-none text-white text-sm font-black transition-opacity mt-5 ${
-                                    canConfirm ? 'bg-[#E31837] hover:opacity-90 cursor-pointer' : 'bg-white/10 opacity-60 cursor-not-allowed'
+                                    canConfirm && !showEntregaConcluida
+                                        ? 'bg-[#E31837] hover:opacity-90 cursor-pointer'
+                                        : 'bg-white/10 opacity-60 cursor-not-allowed'
                                 }`}
                             >
                                 Confirmar pedido
@@ -299,6 +317,36 @@ export default function FinalizarCompra() {
                     </div>
                 )}
             </div>
+
+            {showEntregaConcluida ? (
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6'>
+                    <div
+                        role='dialog'
+                        aria-modal='true'
+                        aria-label='Entrega concluída'
+                        className='w-full max-w-sm rounded-3xl border border-white/10 bg-[#1a0a0a] p-6 text-center shadow-2xl'
+                    >
+                        <img
+                            src='/moto-entrega.gif'
+                            alt='Moto de entrega'
+                            className='mx-auto h-40 w-40 object-contain'
+                            onError={event => {
+                                event.currentTarget.style.display = 'none'
+                            }}
+                        />
+
+                        <h3 className='text-white font-black text-2xl mt-2'>A entrega foi concluída</h3>
+                        <p className='text-gray-500 text-sm mt-1'>Obrigado por comprar com a IF Burguer.</p>
+
+                        <button
+                            onClick={() => router.push('/')}
+                            className='mt-5 w-full h-11 rounded-xl border-none bg-[#E31837] hover:opacity-90 text-white text-sm font-black cursor-pointer transition-opacity'
+                        >
+                            Ok
+                        </button>
+                    </div>
+                </div>
+            ) : null}
 
             <Footer />
         </div>
