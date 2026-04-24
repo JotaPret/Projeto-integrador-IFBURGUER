@@ -17,6 +17,7 @@ model Usuario {
   email   String? @unique @db.VarChar(255)
   telefone String? @db.VarChar(20)
   senhaHash String? @db.VarChar(255)
+  fotoPerfil String? @db.Text
   createdAt DateTime @default(now())
   pedidos Pedido[]
 

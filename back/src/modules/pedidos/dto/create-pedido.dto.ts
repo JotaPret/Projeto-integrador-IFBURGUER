@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsDecimal, IsInt, ValidateNested } from 'class-validator';
+import { IsArray, IsInt, IsNumber, ValidateNested } from 'class-validator';
 
 export class ItemPedidoDto {
   @IsInt()
@@ -8,7 +8,7 @@ export class ItemPedidoDto {
   @IsInt()
   quantidade: number;
 
-  @IsDecimal()
+  @IsNumber({ allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 })
   @Type(() => Number)
   preco: number;
 }

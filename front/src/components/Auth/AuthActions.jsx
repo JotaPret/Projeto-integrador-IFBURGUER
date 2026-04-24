@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -27,6 +27,8 @@ function readCookie(name) {
 export default function AuthActions() {
     const router = useRouter()
     const [avatarFailed, setAvatarFailed] = useState(false)
+    const [profilePhoto, setProfilePhoto] = useState('')
+    const [meEmail, setMeEmail] = useState('')
 
     const email = (() => {
         const hasSession = readCookie(AUTH_COOKIE) === '1'
@@ -46,13 +48,77 @@ export default function AuthActions() {
         }
     })()
 
+    useEffect(() => {
+        let ignore = false
+
+        const loadMe = async () => {
+            const hasSession = readCookie(AUTH_COOKIE) === '1'
+            if (!hasSession) {
+                if (!ignore) {
+                    setProfilePhoto('')
+                    setMeEmail('')
+                    setAvatarFailed(false)
+                }
+                return
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_BASE_URL}/auth/me`, {
+                    credentials: 'include',
+                })
+
+                if (!response.ok) {
+                    if (!ignore) {
+                        setProfilePhoto('')
+                        setMeEmail('')
+                    }
+                    return
+                }
+
+                const payload = await response.json()
+                const user = payload?.user
+                if (!ignore) {
+                    setProfilePhoto(user?.fotoPerfil || '')
+                    setMeEmail(user?.email || '')
+                }
+            } catch {
+                if (!ignore) {
+                    setProfilePhoto('')
+                    setMeEmail('')
+                }
+            }
+        }
+
+        loadMe()
+
+        const handler = () => {
+            loadMe().catch(() => {})
+        }
+
+        window.addEventListener('ifburger-profile-updated', handler)
+
+        return () => {
+            ignore = true
+            window.removeEventListener('ifburger-profile-updated', handler)
+        }
+    }, [])
+
     const profileImage = useMemo(() => {
-        if (!email || avatarFailed) {
+        if (avatarFailed) {
             return ''
         }
 
-        return `https://www.google.com/s2/photos/profile/${encodeURIComponent(email.trim().toLowerCase())}?sz=160`
-    }, [avatarFailed, email])
+        if (profilePhoto) {
+            return profilePhoto
+        }
+
+        const fallbackEmail = meEmail || email
+        if (!fallbackEmail) {
+            return ''
+        }
+
+        return `https://www.google.com/s2/photos/profile/${encodeURIComponent(fallbackEmail.trim().toLowerCase())}?sz=160`
+    }, [avatarFailed, email, meEmail, profilePhoto])
 
     const handleLogout = () => {
         fetch(`${BACKEND_BASE_URL}/auth/logout`, {
@@ -62,6 +128,8 @@ export default function AuthActions() {
 
         document.cookie = `${AUTH_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
         document.cookie = `${USER_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
+        setProfilePhoto('')
+        setMeEmail('')
         router.push('/login')
         router.refresh()
     }
@@ -82,13 +150,13 @@ export default function AuthActions() {
             <Link
                 href='/usuario'
                 className='flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/10 text-white no-underline shadow-sm transition-transform hover:scale-105'
-                title={email}
-                aria-label={`Abrir perfil de ${email}`}
+                title={meEmail || email}
+                aria-label={`Abrir perfil de ${meEmail || email}`}
             >
                 {profileImage ? (
                     <Image
                         src={profileImage}
-                        alt={`Foto de perfil de ${email}`}
+                        alt={`Foto de perfil de ${meEmail || email}`}
                         width={36}
                         height={36}
                         className='h-full w-full rounded-full object-cover'

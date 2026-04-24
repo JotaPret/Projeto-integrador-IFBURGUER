@@ -7,14 +7,14 @@ import { parsePriceLabel, toCartId } from '@/components/Cart/cart-utils'
 
 const produtos = [
     {
-        id: 1,
+        id: 19,
         nome: 'Petit Gateau',
         descricao: 'Bolo de chocolate quente com sorvete de creme e calda',
         preco: 'R$ 22,90',
         imagem: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&h=400&fit=crop',
     },
     {
-        id: 2,
+        id: 15,
         nome: 'Milkshake Ovomaltine',
         descricao: 'Milkshake de Ovomaltine com pedaços crocantes',
         preco: 'R$ 19,90',
@@ -28,7 +28,7 @@ const produtos = [
         imagem: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop',
     },
     {
-        id: 4,
+        id: 22,
         nome: 'Batata Cheddar Bacon',
         descricao: 'Batata frita crocante com cheddar cremoso e bacon',
         preco: 'R$ 24,90',
@@ -42,6 +42,7 @@ export default function MaisPedidos() {
     const handleAddItem = produto => {
         addItem({
             id: toCartId(produto.nome),
+            produtoId: produto.id,
             name: produto.nome,
             description: produto.descricao,
             image: produto.imagem,

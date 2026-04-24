@@ -40,6 +40,7 @@ export class AuthService {
         email: true,
         telefone: true,
         createdAt: true,
+        fotoPerfil: true,
       },
     });
 
@@ -77,6 +78,7 @@ export class AuthService {
         email: true,
         telefone: true,
         createdAt: true,
+        fotoPerfil: true,
       },
     });
 
@@ -97,6 +99,7 @@ export class AuthService {
         telefone: true,
         createdAt: true,
         senhaHash: true,
+        fotoPerfil: true,
       },
     });
 

@@ -7,6 +7,7 @@ import { ShoppingBag } from 'lucide-react'
 import Footer from '@/components/Footer/Footer'
 import { useCart } from '@/components/Cart/CartContext'
 import { formatPriceBRL } from '@/components/Cart/cart-utils'
+import { inferProdutoIdFromName } from '@/components/Cart/cart-utils'
 
 const TAXA_ENTREGA = 7.9
 
@@ -17,6 +18,7 @@ type PaymentMethod = 'pix' | 'card' | 'cash'
 
 type CartItem = {
     id: string | number
+    produtoId?: number | null
     name: string
     description?: string
     image?: string
@@ -53,6 +55,8 @@ export default function FinalizarCompra() {
     const [pagamento, setPagamento] = useState<PaymentMethod>('pix')
 
     const [showEntregaConcluida, setShowEntregaConcluida] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [submitError, setSubmitError] = useState('')
 
     useEffect(() => {
         let isActive = true
@@ -111,13 +115,74 @@ export default function FinalizarCompra() {
         telefone.trim().length > 0 &&
         endereco.trim().length > 0
 
-    const handleConfirm = () => {
-        if (!canConfirm || showEntregaConcluida) {
+    const handleConfirm = async () => {
+        if (!canConfirm || showEntregaConcluida || isSubmitting) {
             return
         }
 
-        clearCart()
-        setShowEntregaConcluida(true)
+        setIsSubmitting(true)
+        setSubmitError('')
+
+        try {
+            const meResponse = await fetch(`${BACKEND_BASE_URL}/auth/me`, {
+                method: 'GET',
+                credentials: 'include',
+            })
+
+            if (!meResponse.ok) {
+                router.push('/login?redirect=%2FFinalizarCompra')
+                return
+            }
+
+            const mePayload = (await meResponse.json()) as MeResponse
+            const userId = mePayload?.user?.id
+            if (!userId) {
+                router.push('/login?redirect=%2FFinalizarCompra')
+                return
+            }
+
+            const itens = items
+                .map(item => ({
+                    produtoId:
+                        Number.isInteger(Number(item.produtoId))
+                            ? Number(item.produtoId)
+                            : inferProdutoIdFromName(item.name),
+                    quantidade: Number.parseInt(String(item.quantity), 10),
+                    preco: Number(item.price),
+                }))
+                .filter(item =>
+                    Number.isInteger(item.produtoId) &&
+                    Number.isInteger(item.quantidade) &&
+                    item.quantidade > 0 &&
+                    Number.isFinite(item.preco)
+                )
+
+            if (itens.length === 0) {
+                setSubmitError('Seu carrinho esta vazio ou invalido.')
+                return
+            }
+
+            const response = await fetch(`${BACKEND_BASE_URL}/pedidos/confirmar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ itens }),
+            })
+
+            if (!response.ok) {
+                setSubmitError('Nao foi possivel confirmar o pedido. Tente novamente.')
+                return
+            }
+
+            clearCart()
+            setShowEntregaConcluida(true)
+        } catch {
+            setSubmitError('Falha de rede ao confirmar o pedido.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -296,16 +361,20 @@ export default function FinalizarCompra() {
                             </div>
 
                             <button
-                                disabled={!canConfirm || showEntregaConcluida}
+                                disabled={!canConfirm || showEntregaConcluida || isSubmitting}
                                 onClick={handleConfirm}
                                 className={`w-full h-12 rounded-xl border-none text-white text-sm font-black transition-opacity mt-5 ${
-                                    canConfirm && !showEntregaConcluida
+                                    canConfirm && !showEntregaConcluida && !isSubmitting
                                         ? 'bg-[#E31837] hover:opacity-90 cursor-pointer'
                                         : 'bg-white/10 opacity-60 cursor-not-allowed'
                                 }`}
                             >
-                                Confirmar pedido
+                                {isSubmitting ? 'Confirmando...' : 'Confirmar pedido'}
                             </button>
+
+                            {submitError ? (
+                                <p className='mt-3 text-sm text-red-300'>{submitError}</p>
+                            ) : null}
 
                             <Link
                                 href='/Carrinho'

@@ -12,6 +12,7 @@ export class UsuariosService {
     nome: true,
     email: true,
     telefone: true,
+    fotoPerfil: true,
     createdAt: true,
     pedidos: true,
   } as const;
@@ -40,6 +41,14 @@ export class UsuariosService {
     return this.prisma.usuario.update({
       where: { id },
       data,
+      select: this.safeUsuarioSelect,
+    });
+  }
+
+  updateFotoPerfil(id: number, fotoPerfil: string | null) {
+    return this.prisma.usuario.update({
+      where: { id },
+      data: { fotoPerfil },
       select: this.safeUsuarioSelect,
     });
   }

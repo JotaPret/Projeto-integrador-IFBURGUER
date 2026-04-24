@@ -62,6 +62,7 @@ export default function Cardapio() {
     const handleAddItem = item => {
         addItem({
             id: toCartId(item.nome),
+            produtoId: item.id,
             name: item.nome,
             description: item.descricao,
             image: item.imagem,

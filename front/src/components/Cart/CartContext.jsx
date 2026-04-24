@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { inferProdutoIdFromName } from './cart-utils'
 
 const CART_STORAGE_KEY = 'ifburger_cart_items'
 
@@ -15,6 +16,12 @@ function sanitizeItems(rawItems) {
         .filter(item => item && item.id && item.name)
         .map(item => ({
             id: item.id,
+            produtoId:
+                Number.isInteger(item.produtoId)
+                    ? item.produtoId
+                    : Number.isInteger(Number(item.produtoId))
+                        ? Number(item.produtoId)
+                        : inferProdutoIdFromName(item.name),
             name: item.name,
             description: item.description || '',
             image: item.image || '',
@@ -57,11 +64,17 @@ export function CartProvider({ children }) {
         setItems(prevItems => {
             const index = prevItems.findIndex(prevItem => prevItem.id === item.id)
 
+            const produtoId =
+                Number.isInteger(Number(item.produtoId))
+                    ? Number(item.produtoId)
+                    : inferProdutoIdFromName(item.name)
+
             if (index === -1) {
                 return [
                     ...prevItems,
                     {
                         id: item.id,
+                        produtoId,
                         name: item.name,
                         description: item.description || '',
                         image: item.image || '',

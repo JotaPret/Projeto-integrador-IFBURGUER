@@ -7,9 +7,8 @@ import { Camera, LogOut, Trash2, UserRound } from 'lucide-react'
 
 const AUTH_COOKIE = 'ifburger_auth'
 const USER_COOKIE = 'ifburger_user'
-const PROFILE_COOKIE = 'ifburger_profile_photo'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const MAX_COOKIE_IMAGE_CHARS = 3000
+const MAX_PROFILE_IMAGE_CHARS = 20000
 
 const BACKEND_BASE_URL =
     process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3334/api/v1'
@@ -18,6 +17,7 @@ type UserInfo = {
     id: number
     nome: string
     email: string | null
+    fotoPerfil?: string | null
 }
 
 type PedidoItem = {
@@ -53,19 +53,6 @@ function setCookie(name: string, value: string) {
 
 function clearCookie(name: string) {
     document.cookie = `${name}=; Max-Age=0; Path=/; SameSite=Lax`
-}
-
-function getSavedProfileImage() {
-    const saved = readCookie(PROFILE_COOKIE)
-    if (!saved) {
-        return ''
-    }
-
-    try {
-        return decodeURIComponent(saved)
-    } catch {
-        return ''
-    }
 }
 
 function getGoogleProfileImageUrl(email: string | null | undefined) {
@@ -143,7 +130,7 @@ export default function UsuarioPage() {
     const [nameInput, setNameInput] = useState('')
     const [isSavingName, setIsSavingName] = useState(false)
 
-    const [profileImage, setProfileImage] = useState(getSavedProfileImage)
+    const [profileImage, setProfileImage] = useState('')
     const [avatarFailed, setAvatarFailed] = useState(false)
     const [avatarError, setAvatarError] = useState('')
 
@@ -175,7 +162,7 @@ export default function UsuarioPage() {
                     return
                 }
 
-                const ordersResponse = await fetch(`${BACKEND_BASE_URL}/pedidos/usuario/${meUser.id}`, {
+                const ordersResponse = await fetch(`${BACKEND_BASE_URL}/pedidos/historico`, {
                     credentials: 'include',
                 })
 
@@ -185,6 +172,7 @@ export default function UsuarioPage() {
 
                 setUser(meUser)
                 setNameInput(meUser.nome || '')
+                setProfileImage(meUser.fotoPerfil || '')
 
                 if (ordersResponse.ok) {
                     const ordersPayload = await ordersResponse.json()
@@ -274,14 +262,25 @@ export default function UsuarioPage() {
 
         try {
             const dataUrl = await fileToCompressedDataUrl(file)
-            const encoded = encodeURIComponent(dataUrl)
-
-            if (encoded.length > MAX_COOKIE_IMAGE_CHARS) {
-                setAvatarError('Imagem muito grande para salvar no cookie. Escolha outra foto.')
+            if (dataUrl.length > MAX_PROFILE_IMAGE_CHARS) {
+                setAvatarError('Imagem muito grande. Escolha outra foto.')
                 return
             }
 
-            setCookie(PROFILE_COOKIE, dataUrl)
+            const updateResponse = await fetch(`${BACKEND_BASE_URL}/usuarios/me/foto`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ fotoPerfil: dataUrl }),
+            })
+
+            if (!updateResponse.ok) {
+                setAvatarError('Nao foi possivel salvar a foto no servidor.')
+                return
+            }
+
             setProfileImage(dataUrl)
             setAvatarFailed(false)
             window.dispatchEvent(new Event('ifburger-profile-updated'))
@@ -291,11 +290,28 @@ export default function UsuarioPage() {
     }
 
     const handleRemoveCustomPhoto = () => {
-        clearCookie(PROFILE_COOKIE)
-        setProfileImage('')
-        setAvatarFailed(false)
         setAvatarError('')
-        window.dispatchEvent(new Event('ifburger-profile-updated'))
+
+        fetch(`${BACKEND_BASE_URL}/usuarios/me/foto`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ fotoPerfil: null }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('failed')
+                }
+
+                setProfileImage('')
+                setAvatarFailed(false)
+                window.dispatchEvent(new Event('ifburger-profile-updated'))
+            })
+            .catch(() => {
+                setAvatarError('Nao foi possivel remover a foto no servidor.')
+            })
     }
 
     const handleLogout = async () => {
@@ -312,7 +328,6 @@ export default function UsuarioPage() {
 
         clearCookie(AUTH_COOKIE)
         clearCookie(USER_COOKIE)
-        clearCookie(PROFILE_COOKIE)
         window.dispatchEvent(new Event('ifburger-profile-updated'))
         router.push('/login')
         router.refresh()
@@ -349,7 +364,6 @@ export default function UsuarioPage() {
 
             clearCookie(AUTH_COOKIE)
             clearCookie(USER_COOKIE)
-            clearCookie(PROFILE_COOKIE)
             window.dispatchEvent(new Event('ifburger-profile-updated'))
             router.push('/login')
             router.refresh()
