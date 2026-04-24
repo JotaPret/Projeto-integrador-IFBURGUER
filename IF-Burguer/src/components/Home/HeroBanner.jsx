@@ -36,7 +36,7 @@ export default function HeroBanner() {
                             Ver Cardápio →
                         </Link>
                         <Link
-                            href='/localizacoes'
+                            href='/Localizacoes'
                             className='bg-white/10 hover:bg-white/20 text-white font-bold px-6 py-3 rounded-full text-sm no-underline transition-colors'
                         >
                             Localização

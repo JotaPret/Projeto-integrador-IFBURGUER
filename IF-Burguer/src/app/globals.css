@@ -8,8 +8,8 @@
 :root{
   --prim: #0f0505;
   --prim-light: #fffffd;
-  --second: #fbff01;
-  --third: #d49204 ;
+  --second: #ff9f1c;
+  --third: #e67e22;
   --white: #fff;
   --black: #000;
   --gradient: linear-gradient(90deg, #00b7ff 1.9%, #0300a3 85.96%);

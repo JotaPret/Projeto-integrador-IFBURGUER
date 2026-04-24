@@ -13,52 +13,62 @@ type Loja = {
     avaliacao: number
     destaque: boolean
     maps: string
+    lat: number
+    lng: number
 }
 
 const lojas: Loja[] = [
     {
         id: 1,
         nome: 'IF Burger - Paulista',
-        endereco: 'Av. Paulista, 1000 - Bela Vista',
-        cidade: 'São Paulo, SP',
+        endereco: 'Av. Paulista, 1578 - Bela Vista',
+        cidade: 'São Paulo - SP, 01310-200',
         horario: 'Seg-Dom: 11h – 23h',
         telefone: '(11) 3000-1001',
         avaliacao: 4.9,
         destaque: true,
-        maps: 'https://maps.google.com/?q=Av.+Paulista,+1000,+São+Paulo',
+        maps: 'https://www.google.com/maps/search/?api=1&query=Av.%20Paulista%2C%201578%20-%20Bela%20Vista%2C%20S%C3%A3o%20Paulo%20-%20SP',
+        lat: -23.561414,
+        lng: -46.655881,
     },
     {
         id: 2,
         nome: 'IF Burger - Pinheiros',
-        endereco: 'Rua dos Pinheiros, 500 - Pinheiros',
-        cidade: 'São Paulo, SP',
+        endereco: 'Av. Rebouças, 3970 - Pinheiros',
+        cidade: 'São Paulo - SP, 05402-600',
         horario: 'Seg-Dom: 11h – 23h',
         telefone: '(11) 3000-1002',
         avaliacao: 4.8,
         destaque: false,
-        maps: 'https://maps.google.com/?q=Rua+dos+Pinheiros,+500,+São+Paulo',
+        maps: 'https://www.google.com/maps/search/?api=1&query=Av.%20Rebou%C3%A7as%2C%203970%20-%20Pinheiros%2C%20S%C3%A3o%20Paulo%20-%20SP',
+        lat: -23.571266,
+        lng: -46.701078,
     },
     {
         id: 3,
         nome: 'IF Burger - Moema',
-        endereco: 'Av. Ibirapuera, 2000 - Moema',
-        cidade: 'São Paulo, SP',
+        endereco: 'Av. Ibirapuera, 3103 - Indianópolis',
+        cidade: 'São Paulo - SP, 04029-200',
         horario: 'Seg-Dom: 11h – 23h',
         telefone: '(11) 3000-1003',
         avaliacao: 4.7,
         destaque: false,
-        maps: 'https://maps.google.com/?q=Av.+Ibirapuera,+2000,+São+Paulo',
+        maps: 'https://www.google.com/maps/search/?api=1&query=Av.%20Ibirapuera%2C%203103%20-%20Indian%C3%B3polis%2C%20S%C3%A3o%20Paulo%20-%20SP',
+        lat: -23.610018,
+        lng: -46.666579,
     },
     {
         id: 4,
         nome: 'IF Burger - Vila Olímpia',
-        endereco: 'Rua Funchal, 300 - Vila Olímpia',
-        cidade: 'São Paulo, SP',
+        endereco: 'R. Olimpíadas, 360 - Vila Olímpia',
+        cidade: 'São Paulo - SP, 04551-000',
         horario: 'Seg-Dom: 11h – 23h',
         telefone: '(11) 3000-1004',
         avaliacao: 4.6,
         destaque: false,
-        maps: 'https://maps.google.com/?q=Rua+Funchal,+300,+São+Paulo',
+        maps: 'https://www.google.com/maps/search/?api=1&query=R.%20Olimp%C3%ADadas%2C%20360%20-%20Vila%20Ol%C3%ADmpia%2C%20S%C3%A3o%20Paulo%20-%20SP',
+        lat: -23.595662,
+        lng: -46.686658,
     },
 ]
 
@@ -147,24 +157,71 @@ export default function Localizacoes() {
                                     </span>
                                 </div>
 
-                                <button className='w-full bg-[#E31837] hover:opacity-90 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 border-none cursor-pointer transition-opacity'>
+                                <a
+                                    href={loja.maps}
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    onClick={event => event.stopPropagation()}
+                                    className='w-full bg-[#E31837] hover:opacity-90 text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 no-underline transition-opacity'
+                                >
                                     <Navigation className='w-3.5 h-3.5' />
                                     Como Chegar
-                                </button>
+                                </a>
                             </div>
                         ))}
                     </div>
 
                     {/* Painel da Loja Selecionada */}
-                    <div className='bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center justify-center p-8 text-center min-h-[300px]'>
-                        <div className='w-16 h-16 bg-[#E31837]/20 rounded-full flex items-center justify-center mb-4'>
-                            <MapPin className='w-8 h-8 text-[#E31837]' />
+                    <div className='bg-white/5 border border-white/10 rounded-2xl p-5 min-h-[300px]'>
+                        <div className='flex items-start gap-3 mb-4'>
+                            <div className='w-12 h-12 bg-[#E31837]/20 rounded-full flex items-center justify-center shrink-0'>
+                                <MapPin className='w-6 h-6 text-[#E31837]' />
+                            </div>
+                            <div className='min-w-0'>
+                                <h3 className='text-white font-bold text-lg leading-tight'>{lojaSelecionada.nome}</h3>
+                                <p className='text-gray-500 text-sm mt-1'>{lojaSelecionada.endereco}</p>
+                                <p className='text-gray-600 text-xs mt-0.5'>{lojaSelecionada.cidade}</p>
+                            </div>
                         </div>
-                        <h3 className='text-white font-bold text-lg mb-1'>{lojaSelecionada.nome}</h3>
-                        <p className='text-gray-500 text-sm mb-6'>{lojaSelecionada.endereco}</p>
-                        <button className='bg-[#E31837] hover:opacity-90 text-white font-bold px-6 py-2.5 rounded-full text-sm border-none cursor-pointer transition-opacity'>
-                            Abrir no Google Maps
-                        </button>
+
+                        <div className='w-full aspect-[16/10] rounded-2xl overflow-hidden border border-white/10 bg-black/20'>
+                            <iframe
+                                title={`Mapa - ${lojaSelecionada.nome}`}
+                                className='w-full h-full'
+                                loading='lazy'
+                                src={(() => {
+                                    const delta = 0.01
+                                    const left = lojaSelecionada.lng - delta
+                                    const right = lojaSelecionada.lng + delta
+                                    const top = lojaSelecionada.lat + delta
+                                    const bottom = lojaSelecionada.lat - delta
+
+                                    const bbox = `${left}%2C${bottom}%2C${right}%2C${top}`
+                                    const marker = `${lojaSelecionada.lat}%2C${lojaSelecionada.lng}`
+
+                                    return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${marker}`
+                                })()}
+                            />
+                        </div>
+
+                        <div className='mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                            <a
+                                href={lojaSelecionada.maps}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className='bg-[#E31837] hover:opacity-90 text-white font-bold px-6 py-2.5 rounded-xl text-sm no-underline text-center transition-opacity'
+                            >
+                                Abrir no Google Maps
+                            </a>
+                            <a
+                                href={lojaSelecionada.maps}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className='bg-white/10 hover:bg-white/15 text-white font-bold px-6 py-2.5 rounded-xl text-sm no-underline text-center transition-colors'
+                            >
+                                Rotas
+                            </a>
+                        </div>
                     </div>
                 </div>
 
