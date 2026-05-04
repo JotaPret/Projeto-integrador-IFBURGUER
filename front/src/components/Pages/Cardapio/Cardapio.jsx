@@ -1,10 +1,92 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Flame, UtensilsCrossed, Coffee, IceCream, Salad } from 'lucide-react'
 import { useCart } from '@/components/Cart/CartContext'
-import { toCartId } from '@/components/Cart/cart-utils'
+import { formatPriceBRL } from '@/components/Cart/cart-utils'
 import Footer from '@/components/Footer/Footer'
+
+function getBackendBaseUrl() {
+    if (typeof window === 'undefined') {
+        return process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3334/api/v1'
+    }
+
+    const envUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+    if (envUrl) {
+        return envUrl
+    }
+
+    const host = window.location.hostname
+    return `http://${host}:3334/api/v1`
+}
+
+function toCategoriaId(value) {
+    const normalized = String(value || '')
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+
+    if (normalized.startsWith('burger')) {
+        return 'burgers'
+    }
+
+    if (normalized.startsWith('combo')) {
+        return 'combos'
+    }
+
+    if (normalized.startsWith('bebida')) {
+        return 'bebidas'
+    }
+
+    if (normalized.startsWith('sobremesa')) {
+        return 'sobremesas'
+    }
+
+    if (normalized.startsWith('acompanh')) {
+        return 'acompanhamentos'
+    }
+
+    return normalized
+}
+
+function isPromoAtiva(produto) {
+    if (!produto || !produto.desconto || Number(produto.desconto) <= 0) {
+        return false
+    }
+
+    if (!produto.fimDesconto) {
+        return true
+    }
+
+    const endsAt = new Date(produto.fimDesconto).getTime()
+    return Number.isFinite(endsAt) ? endsAt > Date.now() : true
+}
+
+function getPrecoAtual(produto) {
+    const preco = Number(produto?.preco) || 0
+    if (!isPromoAtiva(produto)) {
+        return preco
+    }
+
+    const desconto = Number(produto.desconto) || 0
+    const factor = 1 - desconto / 100
+    return Math.max(0, preco * factor)
+}
+
+function getSafeImageSrc(value) {
+    const src = String(value || '').trim()
+
+    if (!src) {
+        return '/suporte.png'
+    }
+
+    if (src.startsWith('/') || src.startsWith('http://') || src.startsWith('https://')) {
+        return src
+    }
+
+    return '/suporte.png'
+}
 
 const categorias = [
     { id: 'burgers', label: 'Burgers', icon: Flame },
@@ -14,59 +96,100 @@ const categorias = [
     { id: 'acompanhamentos', label: 'Acompanhamentos', icon: Salad },
 ]
 
-const produtos = {
-    burgers: [
-        { id: 1, nome: 'Texas BBQ Burger', descricao: 'Blend 200g, bacon defumado, cebola caramelizada, queijo...', preco: 36.90, top: false, imagem: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400&h=300&fit=crop' },
-        { id: 2, nome: 'Chicken Crispy', descricao: 'Filé de frango empanado crocante, alface, tomate, queijo...', preco: 28.90, top: false, imagem: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400&h=300&fit=crop' },
-        { id: 3, nome: 'Blue Cheese Burger', descricao: 'Blend 180g, queijo gorgonzola, rúcula, cebola roxa e molho...', preco: 39.90, top: true, imagem: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop' },
-        { id: 4, nome: 'Smash Burger Clássico', descricao: 'Dois smash de 90g, queijo cheddar, cebola caramelizada...', preco: 32.90, top: true, imagem: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400&h=300&fit=crop' },
-        { id: 5, nome: 'Bacon Lover', descricao: 'Blend de 180g, bacon crocante, queijo prato, cebola roxa e...', preco: 38.90, top: true, imagem: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca368f?w=400&h=300&fit=crop' },
-        { id: 6, nome: 'Veggie Burger', descricao: 'Hambúrguer de grão de bico, queijo muçarela, rúcula, tomat...', preco: 29.90, top: false, imagem: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=400&h=300&fit=crop' },
-        { id: 7, nome: 'Double Cheese', descricao: 'Dois blends de 120g, triplo queijo cheddar, cebola crispy e...', preco: 42.90, top: false, imagem: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop' },
-    ],
-    combos: [
-        { id: 8, nome: 'Combo Triplo', descricao: '3 Smash Burgers + 3 Batatas médias + 3 Refrigerantes 500ml', preco: 109.90, top: false, imagem: 'https://images.unsplash.com/photo-1561758033-7e924f619b47?w=400&h=300&fit=crop' },
-        { id: 9, nome: 'Combo Kids', descricao: 'Mini burger + Batata pequena + Suco de caixinha +...', preco: 32.90, top: false, imagem: 'https://images.unsplash.com/photo-1550950158-d0d960dff596?w=400&h=300&fit=crop' },
-        { id: 10, nome: 'Combo Individual', descricao: '1 Smash Burger + Batata média + Refrigerante 500ml', preco: 45.90, top: true, imagem: 'https://images.unsplash.com/photo-1493770348161-369560ae357d?w=400&h=300&fit=crop' },
-        { id: 11, nome: 'Combo Duplo', descricao: '2 Smash Burgers + 2 Batatas médias + 2 Refrigerantes', preco: 79.90, top: false, imagem: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400&h=300&fit=crop' },
-    ],
-    bebidas: [
-        { id: 12, nome: 'Guaraná Antarctica 500ml', descricao: 'Refrigerante Guaraná Antarctica gelado', preco: 7.90, top: false, imagem: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&h=300&fit=crop' },
-        { id: 13, nome: 'Água Mineral 500ml', descricao: 'Água mineral sem gás', preco: 4.90, top: false, imagem: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop' },
-        { id: 14, nome: 'Milkshake Morango', descricao: 'Milkshake cremoso de morango com chantilly e calda', preco: 18.90, top: false, imagem: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=300&fit=crop' },
-        { id: 15, nome: 'Milkshake Ovomaltine', descricao: 'Milkshake de Ovomaltine com pedaços crocantes', preco: 19.90, top: true, imagem: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=400&h=300&fit=crop' },
-        { id: 16, nome: 'Coca-Cola 500ml', descricao: 'Refrigerante Coca-Cola gelado', preco: 8.90, top: false, imagem: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&h=300&fit=crop' },
-        { id: 17, nome: 'Milkshake Chocolate', descricao: 'Milkshake cremoso de chocolate belga com chantilly', preco: 18.90, top: true, imagem: 'https://images.unsplash.com/photo-1585670347532-e045e4abe1e9?w=400&h=300&fit=crop' },
-        { id: 18, nome: 'Suco Natural Laranja', descricao: 'Suco de laranja natural 400ml', preco: 12.90, top: false, imagem: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400&h=300&fit=crop' },
-    ],
-    sobremesas: [
-        { id: 19, nome: 'Petit Gateau', descricao: 'Bolo de chocolate quente com sorvete de creme e calda', preco: 22.90, top: true, imagem: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&h=300&fit=crop' },
-        { id: 20, nome: 'Brownie com Sorvete', descricao: 'Brownie quentinho com sorvete de baunilha e calda', preco: 19.90, top: false, imagem: 'https://images.unsplash.com/photo-1606313564200-e75d5e341154?w=400&h=300&fit=crop' },
-        { id: 21, nome: 'Churros com Nutella', descricao: 'Churros crocante recheado com Nutella e canela', preco: 16.90, top: false, imagem: 'https://images.unsplash.com/photo-1624355651893-c88ac00b5a07?w=400&h=300&fit=crop' },
-    ],
-    acompanhamentos: [
-        { id: 22, nome: 'Batata Cheddar Bacon', descricao: 'Batata frita crocante com cheddar cremoso e bacon', preco: 24.90, top: true, imagem: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&h=300&fit=crop' },
-        { id: 23, nome: 'Batata Frita', descricao: 'Batata frita crocante temperada', preco: 14.90, top: false, imagem: 'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=400&h=300&fit=crop' },
-        { id: 24, nome: 'Onion Rings', descricao: 'Anéis de cebola empanados e fritos', preco: 18.90, top: false, imagem: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=400&h=300&fit=crop' },
-        { id: 25, nome: 'Nuggets 10un', descricao: '10 nuggets crocantes com molho à escolha', preco: 21.90, top: false, imagem: 'https://images.unsplash.com/photo-1562802378-063ec186a863?w=400&h=300&fit=crop' },
-    ],
-}
-
 export default function Cardapio() {
     const [categoriaAtiva, setCategoriaAtiva] = useState('burgers')
     const { addItem } = useCart()
 
-    const itens = produtos[categoriaAtiva]
+    const [produtos, setProdutos] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [loadError, setLoadError] = useState('')
+
+    useEffect(() => {
+        let isCancelled = false
+
+        async function load() {
+            setIsLoading(true)
+            setLoadError('')
+
+            try {
+                const backendBaseUrl = getBackendBaseUrl()
+                const response = await fetch(`${backendBaseUrl}/produtos`, {
+                    method: 'GET',
+                    cache: 'no-store',
+                })
+
+                if (!response.ok) {
+                    throw new Error('Falha ao carregar produtos')
+                }
+
+                const payload = await response.json()
+
+                const normalized = Array.isArray(payload)
+                    ? payload.map(item => ({
+                        id: Number(item.id),
+                        titulo: String(item.titulo || ''),
+                        descricao: String(item.descricao || ''),
+                        foto: String(item.foto || ''),
+                        preco: Number(item.preco) || 0,
+                        categoria: String(item.categoria || ''),
+                        top: Boolean(Number(item.top)),
+                        desconto: Number(item.desconto) || 0,
+                        fimDesconto: item.fimDesconto || null,
+                    }))
+                    : []
+
+                if (!isCancelled) {
+                    setProdutos(normalized)
+                }
+            } catch {
+                if (!isCancelled) {
+                    setLoadError('Nao foi possivel carregar o cardapio.')
+                    setProdutos([])
+                }
+            } finally {
+                if (!isCancelled) {
+                    setIsLoading(false)
+                }
+            }
+        }
+
+        load()
+        return () => {
+            isCancelled = true
+        }
+    }, [])
+
+    const produtosPorCategoria = useMemo(() => {
+        const initial = {
+            burgers: [],
+            combos: [],
+            bebidas: [],
+            sobremesas: [],
+            acompanhamentos: [],
+        }
+
+        for (const produto of produtos) {
+            const categoriaId = toCategoriaId(produto.categoria)
+            if (Object.prototype.hasOwnProperty.call(initial, categoriaId)) {
+                initial[categoriaId].push(produto)
+            }
+        }
+
+        return initial
+    }, [produtos])
+
+    const itens = produtosPorCategoria[categoriaAtiva] || []
     const categoriaInfo = categorias.find(c => c.id === categoriaAtiva)
 
     const handleAddItem = item => {
+        const precoAtual = getPrecoAtual(item)
         addItem({
-            id: toCartId(item.nome),
+            id: `produto-${item.id}`,
             produtoId: item.id,
-            name: item.nome,
+            name: item.titulo,
             description: item.descricao,
-            image: item.imagem,
-            price: item.preco,
+            image: item.foto,
+            price: precoAtual,
         })
     }
 
@@ -103,7 +226,10 @@ export default function Cardapio() {
                 {/* Seção de Produtos */}
                 <div className='mb-6'>
                     <h2 className='text-white font-black text-3xl'>{categoriaInfo?.label}</h2>
-                    <p className='text-gray-500 text-sm mt-1'>{itens.length} itens disponíveis</p>
+                    <p className='text-gray-500 text-sm mt-1'>
+                        {isLoading ? 'Carregando...' : `${itens.length} itens disponíveis`}
+                    </p>
+                    {loadError && <p className='text-gray-500 text-xs mt-2'>{loadError}</p>}
                 </div>
 
                 {/* Grid de Produtos */}
@@ -113,8 +239,8 @@ export default function Cardapio() {
                             {/* Image */}
                             <div className='relative h-44'>
                                 <Image
-                                    src={item.imagem}
-                                    alt={item.nome}
+                                    src={getSafeImageSrc(item.foto)}
+                                    alt={item.titulo}
                                     fill
                                     className='object-cover'
                                 />
@@ -127,13 +253,24 @@ export default function Cardapio() {
 
                             {/* Content */}
                             <div className='p-3 flex flex-col flex-1'>
-                                <h3 className='text-white font-bold text-sm'>{item.nome}</h3>
+                                <h3 className='text-white font-bold text-sm'>{item.titulo}</h3>
                                 <p className='text-gray-500 text-xs mt-1 mb-3 line-clamp-2'>{item.descricao}</p>
 
                                 <div className='flex items-center justify-between mt-auto'>
-                                    <span className='text-[#E31837] font-black text-sm'>
-                                        R$ {item.preco.toFixed(2).replace('.', ',')}
-                                    </span>
+                                    {isPromoAtiva(item) ? (
+                                        <div className='flex flex-col leading-tight'>
+                                            <span className='text-gray-500 text-[11px] line-through'>
+                                                {formatPriceBRL(Number(item.preco) || 0)}
+                                            </span>
+                                            <span className='text-[#E31837] font-black text-sm'>
+                                                {formatPriceBRL(getPrecoAtual(item))}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className='text-[#E31837] font-black text-sm'>
+                                            {formatPriceBRL(Number(item.preco) || 0)}
+                                        </span>
+                                    )}
                                     <button
                                         onClick={() => handleAddItem(item)}
                                         className='bg-[#E31837] hover:opacity-90 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-opacity cursor-pointer border-none'

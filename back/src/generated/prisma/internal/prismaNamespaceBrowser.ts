@@ -80,6 +80,7 @@ export const UsuarioScalarFieldEnum = {
   email: 'email',
   telefone: 'telefone',
   senhaHash: 'senhaHash',
+  role: 'role',
   fotoPerfil: 'fotoPerfil',
   createdAt: 'createdAt'
 } as const

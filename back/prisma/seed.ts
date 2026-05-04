@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaClient, Role } from '../src/generated/prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const databaseUrl = process.env['DATABASE_URL'];
 if (!databaseUrl) {
@@ -10,6 +11,44 @@ if (!databaseUrl) {
 const prisma = new PrismaClient({
   adapter: new PrismaMariaDb(databaseUrl),
 });
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+async function ensureAdminUser() {
+  const rawEmail = process.env['ADMIN_EMAIL'];
+  const rawPassword = process.env['ADMIN_PASSWORD'];
+
+  if (!rawEmail || !rawPassword) {
+    return;
+  }
+
+  const email = normalizeEmail(rawEmail);
+  const senhaHash = await bcrypt.hash(rawPassword, 10);
+
+  const nome = (process.env['ADMIN_NOME'] || 'Admin').trim().replace(/\s+/g, ' ');
+  const telefone = (process.env['ADMIN_TELEFONE'] || '').trim() || undefined;
+
+  await prisma.usuario.upsert({
+    where: { email },
+    create: {
+      nome,
+      email,
+      telefone,
+      senhaHash,
+      role: Role.ADMIN,
+    },
+    update: {
+      nome,
+      telefone,
+      senhaHash,
+      role: Role.ADMIN,
+    },
+  });
+
+  console.log(`✅ Admin garantido: ${email}`);
+}
 
 type SeedProduto = {
   id: number;
@@ -338,6 +377,8 @@ const produtos: SeedProduto[] = [
 
 async function main() {
   await prisma.$connect();
+
+  await ensureAdminUser();
 
   for (const produto of produtos) {
     await prisma.produto.upsert({

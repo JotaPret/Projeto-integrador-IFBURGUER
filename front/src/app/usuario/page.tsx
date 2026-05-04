@@ -17,6 +17,7 @@ type UserInfo = {
     id: number
     nome: string
     email: string | null
+    role?: 'USER' | 'ADMIN'
     fotoPerfil?: string | null
 }
 
@@ -382,9 +383,19 @@ export default function UsuarioPage() {
         <main className='min-h-screen bg-[var(--prim)] text-white px-[8%] lg:px-[16%] py-8'>
             <div className='flex items-center justify-between gap-4 mb-6'>
                 <h1 className='text-3xl font-black'>Meu Perfil</h1>
-                <Link href='/' className='text-sm text-white/80 no-underline hover:text-white transition-colors'>
-                    Voltar para inicio
-                </Link>
+                <div className='flex items-center gap-3'>
+                    {user?.role === 'ADMIN' && (
+                        <Link
+                            href='/admin'
+                            className='h-9 px-4 rounded-full border border-white/25 bg-white/10 text-white text-sm font-bold flex items-center no-underline hover:bg-white/15 transition-colors'
+                        >
+                            Area Admin
+                        </Link>
+                    )}
+                    <Link href='/' className='text-sm text-white/80 no-underline hover:text-white transition-colors'>
+                        Voltar para inicio
+                    </Link>
+                </div>
             </div>
 
             {isLoading ? (

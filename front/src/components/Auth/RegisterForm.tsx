@@ -6,8 +6,19 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { LockKeyhole, Mail, Phone, UserRound } from 'lucide-react'
 
-const BACKEND_BASE_URL =
-    process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3334/api/v1'
+function getBackendBaseUrl() {
+    const fromEnv = process.env.NEXT_PUBLIC_BACKEND_URL
+    if (fromEnv) return fromEnv
+
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.origin)
+        url.port = '3334'
+        url.pathname = '/api/v1'
+        return url.toString().replace(/\/$/, '')
+    }
+
+    return 'http://localhost:3334/api/v1'
+}
 
 function sanitizeRedirect(value: string | null) {
     if (!value || !value.startsWith('/')) {
@@ -59,7 +70,8 @@ export default function RegisterForm() {
         setIsSubmitting(true)
 
         try {
-            const response = await fetch(`${BACKEND_BASE_URL}/auth/register`, {
+            const backendBaseUrl = getBackendBaseUrl()
+            const response = await fetch(`${backendBaseUrl}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -106,7 +118,6 @@ export default function RegisterForm() {
             setIsSubmitting(false)
         }
     }
-
     return (
         <section className='w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.45)]'>
             <div className='bg-[#120707] p-10 lg:p-12'>

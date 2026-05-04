@@ -1,52 +1,131 @@
 'use client'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Flame } from 'lucide-react'
 import { useCart } from '@/components/Cart/CartContext'
-import { parsePriceLabel, toCartId } from '@/components/Cart/cart-utils'
+import { formatPriceBRL } from '@/components/Cart/cart-utils'
 
-const produtos = [
-    {
-        id: 19,
-        nome: 'Petit Gateau',
-        descricao: 'Bolo de chocolate quente com sorvete de creme e calda',
-        preco: 'R$ 22,90',
-        imagem: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&h=400&fit=crop',
-    },
-    {
-        id: 15,
-        nome: 'Milkshake Ovomaltine',
-        descricao: 'Milkshake de Ovomaltine com pedaços crocantes',
-        preco: 'R$ 19,90',
-        imagem: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=400&fit=crop',
-    },
-    {
-        id: 3,
-        nome: 'Blue Cheese Burger',
-        descricao: 'Blend 180g, queijo gorgonzola, rúcula, cebola roxa e molho...',
-        preco: 'R$ 39,90',
-        imagem: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop',
-    },
-    {
-        id: 22,
-        nome: 'Batata Cheddar Bacon',
-        descricao: 'Batata frita crocante com cheddar cremoso e bacon',
-        preco: 'R$ 24,90',
-        imagem: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&h=400&fit=crop',
-    },
-]
+function getBackendBaseUrl() {
+    if (typeof window === 'undefined') {
+        return process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3334/api/v1'
+    }
+
+    const envUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+    if (envUrl) {
+        return envUrl
+    }
+
+    const host = window.location.hostname
+    return `http://${host}:3334/api/v1`
+}
+
+function isPromoAtiva(produto) {
+    if (!produto || !produto.desconto || Number(produto.desconto) <= 0) {
+        return false
+    }
+
+    if (!produto.fimDesconto) {
+        return true
+    }
+
+    const endsAt = new Date(produto.fimDesconto).getTime()
+    return Number.isFinite(endsAt) ? endsAt > Date.now() : true
+}
+
+function getPrecoAtual(produto) {
+    const preco = Number(produto?.preco) || 0
+    if (!isPromoAtiva(produto)) {
+        return preco
+    }
+
+    const desconto = Number(produto.desconto) || 0
+    const factor = 1 - desconto / 100
+    return Math.max(0, preco * factor)
+}
+
+function getSafeImageSrc(value) {
+    const src = String(value || '').trim()
+
+    if (!src) {
+        return '/suporte.png'
+    }
+
+    if (src.startsWith('/') || src.startsWith('http://') || src.startsWith('https://')) {
+        return src
+    }
+
+    return '/suporte.png'
+}
 
 export default function MaisPedidos() {
     const { addItem } = useCart()
 
+    const [produtos, setProdutos] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [loadError, setLoadError] = useState('')
+
+    useEffect(() => {
+        let isCancelled = false
+
+        async function load() {
+            setIsLoading(true)
+            setLoadError('')
+
+            try {
+                const backendBaseUrl = getBackendBaseUrl()
+                const response = await fetch(`${backendBaseUrl}/produtos/top`, {
+                    method: 'GET',
+                    cache: 'no-store',
+                })
+
+                if (!response.ok) {
+                    throw new Error('Falha ao carregar top')
+                }
+
+                const payload = await response.json()
+                const normalized = Array.isArray(payload)
+                    ? payload.map(item => ({
+                        id: Number(item.id),
+                        titulo: String(item.titulo || ''),
+                        descricao: String(item.descricao || ''),
+                        foto: String(item.foto || ''),
+                        preco: Number(item.preco) || 0,
+                        desconto: Number(item.desconto) || 0,
+                        fimDesconto: item.fimDesconto || null,
+                    }))
+                    : []
+
+                if (!isCancelled) {
+                    setProdutos(normalized.slice(0, 4))
+                }
+            } catch {
+                if (!isCancelled) {
+                    setLoadError('Nao foi possivel carregar os mais pedidos.')
+                    setProdutos([])
+                }
+            } finally {
+                if (!isCancelled) {
+                    setIsLoading(false)
+                }
+            }
+        }
+
+        load()
+        return () => {
+            isCancelled = true
+        }
+    }, [])
+
     const handleAddItem = produto => {
+        const precoAtual = getPrecoAtual(produto)
         addItem({
-            id: toCartId(produto.nome),
+            id: `produto-${produto.id}`,
             produtoId: produto.id,
-            name: produto.nome,
+            name: produto.titulo,
             description: produto.descricao,
-            image: produto.imagem,
-            price: parsePriceLabel(produto.preco),
+            image: produto.foto,
+            price: precoAtual,
         })
     }
 
@@ -65,15 +144,17 @@ export default function MaisPedidos() {
                 </Link>
             </div>
 
+            {loadError && <p className='text-gray-500 text-xs mb-4'>{loadError}</p>}
+
             {/* Cards */}
             <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-                {produtos.map((produto) => (
+                {!isLoading && produtos.map((produto) => (
                     <div key={produto.id} className='bg-[#1a0a0a] rounded-2xl overflow-hidden flex flex-col'>
                         {/* Image */}
                         <div className='relative h-40'>
                             <Image
-                                src={produto.imagem}
-                                alt={produto.nome}
+                                src={getSafeImageSrc(produto.foto)}
+                                alt={produto.titulo}
                                 fill
                                 className='object-cover'
                             />
@@ -84,11 +165,11 @@ export default function MaisPedidos() {
 
                         {/* Content */}
                         <div className='p-3 flex flex-col flex-1'>
-                            <h3 className='text-white font-bold text-sm'>{produto.nome}</h3>
+                            <h3 className='text-white font-bold text-sm'>{produto.titulo}</h3>
                             <p className='text-gray-500 text-xs mt-1 mb-3 line-clamp-2'>{produto.descricao}</p>
 
                             <div className='flex items-center justify-between mt-auto'>
-                                <span className='text-white font-black text-sm'>{produto.preco}</span>
+                                <span className='text-white font-black text-sm'>{formatPriceBRL(getPrecoAtual(produto))}</span>
                                 <button
                                     onClick={() => handleAddItem(produto)}
                                     className='bg-[#E31837] hover:opacity-90 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-opacity cursor-pointer border-none'

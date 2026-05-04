@@ -11,8 +11,19 @@ import { inferProdutoIdFromName } from '@/components/Cart/cart-utils'
 
 const TAXA_ENTREGA = 7.9
 
-const BACKEND_BASE_URL =
-    process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3334/api/v1'
+function getBackendBaseUrl() {
+    const fromEnv = process.env.NEXT_PUBLIC_BACKEND_URL
+    if (fromEnv) return fromEnv
+
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.origin)
+        url.port = '3334'
+        url.pathname = '/api/v1'
+        return url.toString().replace(/\/$/, '')
+    }
+
+    return 'http://localhost:3334/api/v1'
+}
 
 type PaymentMethod = 'pix' | 'card' | 'cash'
 
@@ -63,7 +74,8 @@ export default function FinalizarCompra() {
 
         const loadProfile = async () => {
             try {
-                const response = await fetch(`${BACKEND_BASE_URL}/auth/me`, {
+                const backendBaseUrl = getBackendBaseUrl()
+                const response = await fetch(`${backendBaseUrl}/auth/me`, {
                     method: 'GET',
                     credentials: 'include',
                 })
@@ -124,7 +136,8 @@ export default function FinalizarCompra() {
         setSubmitError('')
 
         try {
-            const meResponse = await fetch(`${BACKEND_BASE_URL}/auth/me`, {
+            const backendBaseUrl = getBackendBaseUrl()
+            const meResponse = await fetch(`${backendBaseUrl}/auth/me`, {
                 method: 'GET',
                 credentials: 'include',
             })
@@ -162,7 +175,7 @@ export default function FinalizarCompra() {
                 return
             }
 
-            const response = await fetch(`${BACKEND_BASE_URL}/pedidos/confirmar`, {
+            const response = await fetch(`${backendBaseUrl}/pedidos/confirmar`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

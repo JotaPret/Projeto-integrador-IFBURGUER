@@ -26,34 +26,43 @@ function readCookie(name) {
 
 export default function AuthActions() {
     const router = useRouter()
+    const [isHydrated, setIsHydrated] = useState(false)
+    const [hasSession, setHasSession] = useState(false)
+    const [sessionEmail, setSessionEmail] = useState('')
     const [avatarFailed, setAvatarFailed] = useState(false)
     const [profilePhoto, setProfilePhoto] = useState('')
     const [meEmail, setMeEmail] = useState('')
 
-    const email = (() => {
-        const hasSession = readCookie(AUTH_COOKIE) === '1'
-        if (!hasSession) {
-            return ''
+    useEffect(() => {
+        setIsHydrated(true)
+
+        const cookieHasSession = readCookie(AUTH_COOKIE) === '1'
+        setHasSession(cookieHasSession)
+
+        if (!cookieHasSession) {
+            setSessionEmail('')
+            return
         }
 
         const savedEmail = readCookie(USER_COOKIE)
         if (!savedEmail) {
-            return 'Cliente IF'
+            setSessionEmail('Cliente IF')
+            return
         }
 
         try {
-            return decodeURIComponent(savedEmail)
+            setSessionEmail(decodeURIComponent(savedEmail))
         } catch {
-            return 'Cliente IF'
+            setSessionEmail('Cliente IF')
         }
-    })()
+    }, [])
 
     useEffect(() => {
         let ignore = false
 
         const loadMe = async () => {
-            const hasSession = readCookie(AUTH_COOKIE) === '1'
-            if (!hasSession) {
+            const cookieHasSession = readCookie(AUTH_COOKIE) === '1'
+            if (!cookieHasSession) {
                 if (!ignore) {
                     setProfilePhoto('')
                     setMeEmail('')
@@ -92,6 +101,32 @@ export default function AuthActions() {
         loadMe()
 
         const handler = () => {
+            const cookieHasSession = readCookie(AUTH_COOKIE) === '1'
+            if (!ignore) {
+                setHasSession(cookieHasSession)
+            }
+
+            if (!cookieHasSession) {
+                if (!ignore) {
+                    setSessionEmail('')
+                }
+                loadMe().catch(() => {})
+                return
+            }
+
+            const savedEmail = readCookie(USER_COOKIE)
+            if (!ignore) {
+                if (!savedEmail) {
+                    setSessionEmail('Cliente IF')
+                } else {
+                    try {
+                        setSessionEmail(decodeURIComponent(savedEmail))
+                    } catch {
+                        setSessionEmail('Cliente IF')
+                    }
+                }
+            }
+
             loadMe().catch(() => {})
         }
 
@@ -112,13 +147,13 @@ export default function AuthActions() {
             return profilePhoto
         }
 
-        const fallbackEmail = meEmail || email
+        const fallbackEmail = meEmail || sessionEmail
         if (!fallbackEmail) {
             return ''
         }
 
         return `https://www.google.com/s2/photos/profile/${encodeURIComponent(fallbackEmail.trim().toLowerCase())}?sz=160`
-    }, [avatarFailed, email, meEmail, profilePhoto])
+    }, [avatarFailed, meEmail, profilePhoto, sessionEmail])
 
     const handleLogout = () => {
         fetch(`${BACKEND_BASE_URL}/auth/logout`, {
@@ -126,15 +161,20 @@ export default function AuthActions() {
             credentials: 'include',
         }).catch(() => {})
 
-        document.cookie = `${AUTH_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
-        document.cookie = `${USER_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
+        if (typeof document !== 'undefined') {
+            document.cookie = `${AUTH_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
+            document.cookie = `${USER_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
+        }
+
+        setHasSession(false)
+        setSessionEmail('')
         setProfilePhoto('')
         setMeEmail('')
         router.push('/login')
         router.refresh()
     }
 
-    if (!email) {
+    if (!isHydrated || !hasSession) {
         return (
             <Link
                 href='/login'
@@ -150,13 +190,13 @@ export default function AuthActions() {
             <Link
                 href='/usuario'
                 className='flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/10 text-white no-underline shadow-sm transition-transform hover:scale-105'
-                title={meEmail || email}
-                aria-label={`Abrir perfil de ${meEmail || email}`}
+                title={meEmail || sessionEmail}
+                aria-label={`Abrir perfil de ${meEmail || sessionEmail}`}
             >
                 {profileImage ? (
                     <Image
                         src={profileImage}
-                        alt={`Foto de perfil de ${meEmail || email}`}
+                        alt={`Foto de perfil de ${meEmail || sessionEmail}`}
                         width={36}
                         height={36}
                         className='h-full w-full rounded-full object-cover'

@@ -72,45 +72,81 @@ npm run build
 npm start
 ```
 
-O servidor iniciará em `http://localhost:3333/api/v1`
+O servidor iniciará em `http://localhost:3334/api/v1`
 
 ## 📚 Rotas da API
 
 ### Auth
 - `POST /api/v1/auth/register` - Criar conta (nome, email, telefone opcional, senha)
 - `POST /api/v1/auth/login` - Entrar (email e senha) e receber token JWT
+- `GET /api/v1/auth/me` - Dados do usuário logado (requer autenticação)
+
+## 👮 Admin (RBAC)
+
+O backend agora suporta **perfis** via o campo `role` do usuário:
+
+- `USER` (padrão)
+- `ADMIN`
+
+Rotas administrativas exigem autenticação e `role=ADMIN`.
+
+### Criar/garantir um admin (seed)
+
+No arquivo `.env`, defina:
+
+```env
+ADMIN_EMAIL="admin@ifburguer.com"
+ADMIN_PASSWORD="123456"
+ADMIN_NOME="Administrador"  # opcional
+ADMIN_TELEFONE=""           # opcional
+```
+
+Depois rode:
+
+```bash
+# Banco já existente (recomendado): sincroniza o schema sem resetar dados
+npx prisma db push
+
+npm run prisma:seed
+```
+
+> Se você estiver iniciando um banco do zero e tiver um histórico de migrations local, pode usar `npm run prisma:migrate` no lugar do `db push`.
 
 ### Usuários
-- `GET /api/v1/usuarios` - Listar todos os usuários
-- `POST /api/v1/usuarios` - Criar novo usuário
-- `GET /api/v1/usuarios/:id` - Obter detalhes de um usuário
-- `PATCH /api/v1/usuarios/:id` - Atualizar usuário
-- `DELETE /api/v1/usuarios/:id` - Deletar usuário
+- `GET /api/v1/usuarios` - Listar todos os usuários (**ADMIN**)
+- `POST /api/v1/usuarios` - Criar novo usuário (**ADMIN**)
+- `GET /api/v1/usuarios/:id` - Obter detalhes de um usuário (**ADMIN**)
+- `PATCH /api/v1/usuarios/:id` - Atualizar usuário (**ADMIN**)
+- `PATCH /api/v1/usuarios/:id/role` - Alterar perfil (`USER`/`ADMIN`) (**ADMIN**)
+- `DELETE /api/v1/usuarios/:id` - Deletar usuário (**ADMIN**)
+- `PATCH /api/v1/usuarios/me/foto` - Atualizar foto do usuário logado (requer autenticação)
 
 ### Produtos
 - `GET /api/v1/produtos` - Listar todos os produtos
-- `POST /api/v1/produtos` - Criar novo produto
+- `POST /api/v1/produtos` - Criar novo produto (**ADMIN**)
 - `GET /api/v1/produtos/categoria/:categoria` - Filtrar por categoria
 - `GET /api/v1/produtos/top` - Produtos em destaque
 - `GET /api/v1/produtos/promocoes` - Produtos em promoção
 - `GET /api/v1/produtos/:id` - Obter detalhes de um produto
-- `PATCH /api/v1/produtos/:id` - Atualizar produto
-- `DELETE /api/v1/produtos/:id` - Deletar produto
+- `PATCH /api/v1/produtos/:id` - Atualizar produto (**ADMIN**)
+- `DELETE /api/v1/produtos/:id` - Deletar produto (**ADMIN**)
 
 ### Pedidos
-- `GET /api/v1/pedidos` - Listar todos os pedidos
-- `POST /api/v1/pedidos` - Criar novo pedido
-- `GET /api/v1/pedidos/usuario/:usuarioId` - Pedidos de um usuário
-- `GET /api/v1/pedidos/:id` - Obter detalhes de um pedido
-- `DELETE /api/v1/pedidos/:id` - Cancelar pedido
+- `POST /api/v1/pedidos/confirmar` - Confirmar pedido do usuário logado (requer autenticação)
+- `GET /api/v1/pedidos/historico` - Histórico do usuário logado (requer autenticação)
+- `GET /api/v1/pedidos` - Listar todos os pedidos (**ADMIN**)
+- `POST /api/v1/pedidos` - Criar novo pedido (**ADMIN**)
+- `GET /api/v1/pedidos/usuario/:usuarioId` - Pedidos de um usuário (**ADMIN**)
+- `GET /api/v1/pedidos/:id` - Obter detalhes de um pedido (**ADMIN**)
+- `DELETE /api/v1/pedidos/:id` - Cancelar pedido (**ADMIN**)
 
 ### Localizações
 - `GET /api/v1/localizacoes` - Listar todos as localizações
-- `POST /api/v1/localizacoes` - Criar nova localização
+- `POST /api/v1/localizacoes` - Criar nova localização (**ADMIN**)
 - `GET /api/v1/localizacoes/destacadas` - Localizações em destaque
 - `GET /api/v1/localizacoes/:id` - Obter detalhes de uma localização
-- `PATCH /api/v1/localizacoes/:id` - Atualizar localização
-- `DELETE /api/v1/localizacoes/:id` - Deletar localização
+- `PATCH /api/v1/localizacoes/:id` - Atualizar localização (**ADMIN**)
+- `DELETE /api/v1/localizacoes/:id` - Deletar localização (**ADMIN**)
 
 ## 🗄️ Gerenciar o Banco de Dados
 
@@ -161,14 +197,14 @@ back/
 
 ### Criar Usuário
 ```bash
-curl -X POST http://localhost:3333/api/v1/usuarios \
+curl -X POST http://localhost:3334/api/v1/usuarios \
   -H "Content-Type: application/json" \
   -d '{"nome": "João Silva"}'
 ```
 
 ### Criar Produto
 ```bash
-curl -X POST http://localhost:3333/api/v1/produtos \
+curl -X POST http://localhost:3334/api/v1/produtos \
   -H "Content-Type: application/json" \
   -d '{
     "titulo": "Burger Classic",
@@ -181,7 +217,7 @@ curl -X POST http://localhost:3333/api/v1/produtos \
 
 ### Criar Pedido
 ```bash
-curl -X POST http://localhost:3333/api/v1/pedidos \
+curl -X POST http://localhost:3334/api/v1/pedidos \
   -H "Content-Type: application/json" \
   -d '{
     "usuarioId": 1,

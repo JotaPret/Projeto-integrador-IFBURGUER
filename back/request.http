@@ -1,14 +1,15 @@
-@backendBaseUrl = http://localhost:3334/api/v1
+@backendBaseUrl = http://localhost:3333/api/v1
 
 ### Registrar usuario (Auth)
 POST {{backendBaseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "nome": "Joao Silva",
-  "email": "joao@ifburger.com",
-  "telefone": "(11) 99999-9999",
-  "senha": "123456"
+  "nome": "Paola",
+  "email": "paola@ifburger.com",
+  "telefone": "(12) 99999-9999",
+  "senha": "123452",
+  "role": "Admin"
 }
 
 ### Login (Auth)

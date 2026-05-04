@@ -8,8 +8,19 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 
-const BACKEND_BASE_URL =
-    process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3334/api/v1'
+function getBackendBaseUrl() {
+    const fromEnv = process.env.NEXT_PUBLIC_BACKEND_URL
+    if (fromEnv) return fromEnv
+
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.origin)
+        url.port = '3334'
+        url.pathname = '/api/v1'
+        return url.toString().replace(/\/$/, '')
+    }
+
+    return 'http://localhost:3334/api/v1'
+}
 
 function sanitizeRedirect(value: string | null) {
     if (!value || !value.startsWith('/')) {
@@ -50,7 +61,8 @@ export default function LoginForm() {
         setIsSubmitting(true)
 
         try {
-            const response = await fetch(`${BACKEND_BASE_URL}/auth/login`, {
+            const backendBaseUrl = getBackendBaseUrl()
+            const response = await fetch(`${backendBaseUrl}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -84,6 +96,10 @@ export default function LoginForm() {
 
             document.cookie = `ifburger_auth=1; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax`
             document.cookie = `ifburger_user=${encodeURIComponent(normalizedEmail)}; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax`
+
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('ifburger-profile-updated'))
+            }
 
             router.replace(redirectPath)
             router.refresh()
