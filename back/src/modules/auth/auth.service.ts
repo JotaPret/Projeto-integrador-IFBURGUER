@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -40,6 +41,7 @@ export class AuthService {
         email: true,
         telefone: true,
         role: true,
+        pontos: true,
         createdAt: true,
         fotoPerfil: true,
       },
@@ -79,6 +81,7 @@ export class AuthService {
         email: true,
         telefone: true,
         role: true,
+        pontos: true,
         createdAt: true,
         fotoPerfil: true,
       },
@@ -100,6 +103,7 @@ export class AuthService {
         email: true,
         telefone: true,
         role: true,
+        pontos: true,
         createdAt: true,
         senhaHash: true,
         fotoPerfil: true,
@@ -120,6 +124,53 @@ export class AuthService {
     const { senhaHash: _senhaHash, ...safeUser } = user;
 
     return { user: safeUser, accessToken };
+  }
+
+  async redeemPoints(userId?: number, pontos?: number) {
+    if (!userId) {
+      throw new UnauthorizedException('Nao autenticado.');
+    }
+
+    const cost = Number(pontos);
+    if (!Number.isInteger(cost) || cost <= 0) {
+      throw new BadRequestException('Pontos invalidos.');
+    }
+
+    const updatedUser = await this.prisma.$transaction(async (tx) => {
+      const result = await tx.usuario.updateMany({
+        where: {
+          id: userId,
+          pontos: {
+            gte: cost,
+          },
+        },
+        data: {
+          pontos: {
+            decrement: cost,
+          },
+        },
+      });
+
+      if (result.count === 0) {
+        throw new ConflictException('Pontos insuficientes.');
+      }
+
+      const user = await tx.usuario.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          pontos: true,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException('Usuario nao encontrado.');
+      }
+
+      return user;
+    });
+
+    return { user: updatedUser };
   }
 
   private async signToken(userId: number, email: string | null) {

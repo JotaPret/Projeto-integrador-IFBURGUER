@@ -12,6 +12,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ProdutosService } from './produtos.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
+import { SetAvaliacaoDto } from './dto/set-avaliacao.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -51,6 +52,15 @@ export class ProdutosController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.produtosService.findOne(id);
+  }
+
+  @Patch(':id/avaliacao')
+  @UseGuards(AuthGuard('jwt'))
+  setAvaliacao(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: SetAvaliacaoDto,
+  ) {
+    return this.produtosService.setAvaliacao(id, body.avaliacao);
   }
 
   @Patch(':id')

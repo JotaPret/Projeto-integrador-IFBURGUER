@@ -2,15 +2,59 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react'
+import { Minus, Plus, ShoppingBag, Star, Trash2 } from 'lucide-react'
 import Footer from '@/components/Footer/Footer'
 import { useCart } from '@/components/Cart/CartContext'
 import { formatPriceBRL } from '@/components/Cart/cart-utils'
 
 const TAXA_ENTREGA = 7.9
 
+function getBackendBaseUrl() {
+    const fromEnv = process.env.NEXT_PUBLIC_BACKEND_URL
+    if (fromEnv) return fromEnv
+
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.origin)
+        url.port = '3334'
+        url.pathname = '/api/v1'
+        return url.toString().replace(/\/$/, '')
+    }
+
+    return 'http://localhost:3334/api/v1'
+}
+
+async function persistProdutoAvaliacao(produtoId, avaliacao) {
+    if (!Number.isInteger(Number(produtoId))) {
+        return
+    }
+
+    const stars = Number(avaliacao)
+    if (!Number.isInteger(stars) || stars < 1 || stars > 5) {
+        return
+    }
+
+    const backendBaseUrl = getBackendBaseUrl()
+    await fetch(`${backendBaseUrl}/produtos/${Number(produtoId)}/avaliacao`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ avaliacao: stars }),
+    }).catch(() => {})
+}
+
 export default function Carrinho() {
-    const { items, subtotal, totalItems, removeItem, increaseItem, decreaseItem, clearCart } = useCart()
+    const {
+        items,
+        subtotal,
+        totalItems,
+        removeItem,
+        increaseItem,
+        decreaseItem,
+        clearCart,
+        setItemRating,
+    } = useCart()
 
     const entrega = items.length > 0 ? TAXA_ENTREGA : 0
     const total = subtotal + entrega
@@ -56,6 +100,36 @@ export default function Carrinho() {
                                         <div className='flex-1 min-w-0'>
                                             <h3 className='text-white font-bold text-lg truncate'>{item.name}</h3>
                                             <p className='text-gray-500 text-sm mt-1 line-clamp-2'>{item.description}</p>
+
+                                            <div className='flex items-center gap-1.5 mt-2'>
+                                                {Array.from({ length: 5 }).map((_, index) => {
+                                                    const starValue = index + 1
+                                                    const current = Math.round(Number(item.rating) || 0)
+                                                    const filled = starValue <= current
+
+                                                    return (
+                                                        <button
+                                                            key={starValue}
+                                                            type='button'
+                                                            aria-label={`Avaliar com ${starValue} estrela(s)`}
+                                                            onClick={() => {
+                                                                setItemRating?.(item.id, starValue)
+                                                                persistProdutoAvaliacao(item.produtoId, starValue)
+                                                            }}
+                                                            className='p-0 m-0 bg-transparent border-none cursor-pointer'
+                                                        >
+                                                            <Star
+                                                                className={`w-4 h-4 ${filled ? 'text-[#F5A623] fill-[#F5A623]' : 'text-white/30'}`}
+                                                            />
+                                                        </button>
+                                                    )
+                                                })}
+
+                                                <span className='text-white/70 text-xs font-bold ml-1'>
+                                                    {Number(item.rating) ? Number(item.rating).toFixed(1) : '0.0'}
+                                                </span>
+                                            </div>
+
                                             <p className='text-[#E31837] font-black text-lg mt-2'>{formatPriceBRL(item.price)}</p>
                                         </div>
 

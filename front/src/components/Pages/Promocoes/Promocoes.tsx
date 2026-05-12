@@ -30,7 +30,7 @@ const promocoes: Promocao[] = [
     {
         id: 2,
         nome: 'Happy Hour',
-        descricao: 'Das 18h às 20h. Batata em dobro em qualquer pedido!',
+        descricao: 'Das 18h às 20h. Batata em dobro em qualquer pedido que contenha batata!',
         precoOriginal: null,
         precoAtual: null,
         badge: '2x1',

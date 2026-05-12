@@ -207,9 +207,6 @@ export default function LoginForm() {
                     </Link>
                 </p>
 
-                <p className='text-xs text-gray-500 mt-6'>
-                    Autenticacao via cookie (token HttpOnly gerenciado pelo backend).
-                </p>
             </div>
         </section>
     )

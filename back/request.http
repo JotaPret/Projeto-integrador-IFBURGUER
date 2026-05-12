@@ -1,4 +1,4 @@
-@backendBaseUrl = http://localhost:3333/api/v1
+@backendBaseUrl = http://localhost:3334/api/v1
 
 ### Registrar usuario (Auth)
 POST {{backendBaseUrl}}/auth/register

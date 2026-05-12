@@ -55,6 +55,7 @@ export const ModelName = {
   Pedido: 'Pedido',
   ItemPedido: 'ItemPedido',
   Produto: 'Produto',
+  CarrinhoItem: 'CarrinhoItem',
   Localizacao: 'Localizacao'
 } as const
 
@@ -80,9 +81,10 @@ export const UsuarioScalarFieldEnum = {
   email: 'email',
   telefone: 'telefone',
   senhaHash: 'senhaHash',
-  role: 'role',
+  createdAt: 'createdAt',
   fotoPerfil: 'fotoPerfil',
-  createdAt: 'createdAt'
+  role: 'role',
+  pontos: 'pontos'
 } as const
 
 export type UsuarioScalarFieldEnum = (typeof UsuarioScalarFieldEnum)[keyof typeof UsuarioScalarFieldEnum]
@@ -122,6 +124,17 @@ export const ProdutoScalarFieldEnum = {
 } as const
 
 export type ProdutoScalarFieldEnum = (typeof ProdutoScalarFieldEnum)[keyof typeof ProdutoScalarFieldEnum]
+
+
+export const CarrinhoItemScalarFieldEnum = {
+  usuarioId: 'usuarioId',
+  produtoId: 'produtoId',
+  quantidade: 'quantidade',
+  preco: 'preco',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CarrinhoItemScalarFieldEnum = (typeof CarrinhoItemScalarFieldEnum)[keyof typeof CarrinhoItemScalarFieldEnum]
 
 
 export const LocalizacaoScalarFieldEnum = {

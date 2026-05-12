@@ -3,6 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RedeemDto } from './dto/redeem.dto';
 import { RegisterDto } from './dto/register.dto';
 
 const TOKEN_COOKIE = 'ifburger_token';
@@ -16,6 +17,15 @@ export class AuthController {
   @Get('me')
   me(@Req() req: Request & { user?: { userId: number } }) {
     return this.authService.me(req.user?.userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('redeem')
+  redeem(
+    @Req() req: Request & { user?: { userId: number } },
+    @Body() body: RedeemDto,
+  ) {
+    return this.authService.redeemPoints(req.user?.userId, body.pontos);
   }
 
   @Post('register')

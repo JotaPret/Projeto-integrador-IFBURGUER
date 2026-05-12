@@ -131,6 +131,7 @@ export default function Cardapio() {
                         descricao: String(item.descricao || ''),
                         foto: String(item.foto || ''),
                         preco: Number(item.preco) || 0,
+                        avaliacao: Number(item.avaliacao) || 0,
                         categoria: String(item.categoria || ''),
                         top: Boolean(Number(item.top)),
                         desconto: Number(item.desconto) || 0,
@@ -190,6 +191,7 @@ export default function Cardapio() {
             description: item.descricao,
             image: item.foto,
             price: precoAtual,
+            rating: Number(item.avaliacao) || 0,
         })
     }
 

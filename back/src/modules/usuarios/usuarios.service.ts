@@ -12,6 +12,7 @@ export class UsuariosService {
     nome: true,
     email: true,
     telefone: true,
+    pontos: true,
     fotoPerfil: true,
     createdAt: true,
     pedidos: true,

@@ -388,6 +388,7 @@ export const ModelName = {
   Pedido: 'Pedido',
   ItemPedido: 'ItemPedido',
   Produto: 'Produto',
+  CarrinhoItem: 'CarrinhoItem',
   Localizacao: 'Localizacao'
 } as const
 
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "usuario" | "pedido" | "itemPedido" | "produto" | "localizacao"
+    modelProps: "usuario" | "pedido" | "itemPedido" | "produto" | "carrinhoItem" | "localizacao"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -672,6 +673,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CarrinhoItem: {
+      payload: Prisma.$CarrinhoItemPayload<ExtArgs>
+      fields: Prisma.CarrinhoItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CarrinhoItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrinhoItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CarrinhoItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrinhoItemPayload>
+        }
+        findFirst: {
+          args: Prisma.CarrinhoItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrinhoItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CarrinhoItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrinhoItemPayload>
+        }
+        findMany: {
+          args: Prisma.CarrinhoItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrinhoItemPayload>[]
+        }
+        create: {
+          args: Prisma.CarrinhoItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrinhoItemPayload>
+        }
+        createMany: {
+          args: Prisma.CarrinhoItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CarrinhoItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrinhoItemPayload>
+        }
+        update: {
+          args: Prisma.CarrinhoItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrinhoItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.CarrinhoItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CarrinhoItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CarrinhoItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrinhoItemPayload>
+        }
+        aggregate: {
+          args: Prisma.CarrinhoItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCarrinhoItem>
+        }
+        groupBy: {
+          args: Prisma.CarrinhoItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CarrinhoItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CarrinhoItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CarrinhoItemCountAggregateOutputType> | number
+        }
+      }
+    }
     Localizacao: {
       payload: Prisma.$LocalizacaoPayload<ExtArgs>
       fields: Prisma.LocalizacaoFieldRefs
@@ -783,9 +850,10 @@ export const UsuarioScalarFieldEnum = {
   email: 'email',
   telefone: 'telefone',
   senhaHash: 'senhaHash',
-  role: 'role',
+  createdAt: 'createdAt',
   fotoPerfil: 'fotoPerfil',
-  createdAt: 'createdAt'
+  role: 'role',
+  pontos: 'pontos'
 } as const
 
 export type UsuarioScalarFieldEnum = (typeof UsuarioScalarFieldEnum)[keyof typeof UsuarioScalarFieldEnum]
@@ -825,6 +893,17 @@ export const ProdutoScalarFieldEnum = {
 } as const
 
 export type ProdutoScalarFieldEnum = (typeof ProdutoScalarFieldEnum)[keyof typeof ProdutoScalarFieldEnum]
+
+
+export const CarrinhoItemScalarFieldEnum = {
+  usuarioId: 'usuarioId',
+  produtoId: 'produtoId',
+  quantidade: 'quantidade',
+  preco: 'preco',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CarrinhoItemScalarFieldEnum = (typeof CarrinhoItemScalarFieldEnum)[keyof typeof CarrinhoItemScalarFieldEnum]
 
 
 export const LocalizacaoScalarFieldEnum = {
@@ -901,16 +980,16 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
 
 
 /**
- * Reference to a field of type 'Role'
+ * Reference to a field of type 'DateTime'
  */
-export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
     
 
 
 /**
- * Reference to a field of type 'DateTime'
+ * Reference to a field of type 'Role'
  */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
     
 
 
@@ -1026,6 +1105,7 @@ export type GlobalOmitConfig = {
   pedido?: Prisma.PedidoOmit
   itemPedido?: Prisma.ItemPedidoOmit
   produto?: Prisma.ProdutoOmit
+  carrinhoItem?: Prisma.CarrinhoItemOmit
   localizacao?: Prisma.LocalizacaoOmit
 }
 

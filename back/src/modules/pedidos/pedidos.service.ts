@@ -12,28 +12,67 @@ export class PedidosService {
     nome: true,
     email: true,
     telefone: true,
+    pontos: true,
     fotoPerfil: true,
     createdAt: true,
   } as const;
 
+  private calculateLoyaltyPoints(body: ConfirmPedidoDto) {
+    const totalCents = (body.itens || []).reduce((sum, item) => {
+      const unitCents = Math.round(Number(item.preco) * 100);
+      const qty = Number(item.quantidade);
+
+      if (!Number.isFinite(unitCents) || !Number.isFinite(qty) || qty <= 0) {
+        return sum;
+      }
+
+      return sum + unitCents * qty;
+    }, 0);
+
+    return Math.max(0, Math.floor(totalCents / 100));
+  }
+
   async confirmForUser(usuarioId: number, body: ConfirmPedidoDto) {
-    return this.prisma.pedido.create({
-      data: {
-        usuarioId,
-        itensPedido: {
-          create: body.itens,
-        },
-      },
-      include: {
-        usuario: {
-          select: this.safeUsuarioSelect,
-        },
-        itensPedido: {
-          include: {
-            produto: true,
+    const pontosGanhos = this.calculateLoyaltyPoints(body);
+
+    return this.prisma.$transaction(async tx => {
+      const pedido = await tx.pedido.create({
+        data: {
+          usuarioId,
+          itensPedido: {
+            create: body.itens,
           },
         },
-      },
+        include: {
+          usuario: {
+            select: this.safeUsuarioSelect,
+          },
+          itensPedido: {
+            include: {
+              produto: true,
+            },
+          },
+        },
+      });
+
+      if (pontosGanhos > 0) {
+        await tx.usuario.update({
+          where: { id: usuarioId },
+          data: {
+            pontos: { increment: pontosGanhos },
+          },
+        });
+      }
+
+      const usuarioAtualizado = await tx.usuario.findUnique({
+        where: { id: usuarioId },
+        select: this.safeUsuarioSelect,
+      });
+
+      return {
+        ...pedido,
+        usuario: usuarioAtualizado ?? pedido.usuario,
+      };
     });
   }
 

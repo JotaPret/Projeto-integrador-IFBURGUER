@@ -11,15 +11,25 @@ datasource db {
   provider = "mysql"
 }
 
+enum Role {
+  USER
+  ADMIN
+
+  @@map("usuarios_role")
+}
+
 model Usuario {
-  id      Int     @id @default(autoincrement())
-  nome    String  @db.VarChar(45)
-  email   String? @unique @db.VarChar(255)
-  telefone String? @db.VarChar(20)
-  senhaHash String? @db.VarChar(255)
-  fotoPerfil String? @db.Text
-  createdAt DateTime @default(now())
-  pedidos Pedido[]
+  id         Int      @id @default(autoincrement())
+  nome       String   @db.VarChar(45)
+  email      String?  @unique @db.VarChar(255)
+  telefone   String?  @db.VarChar(20)
+  senhaHash  String?  @db.VarChar(255)
+  createdAt  DateTime @default(now())
+  fotoPerfil String?  @db.Text
+  role       Role     @default(USER)
+  pontos     Int      @default(0)
+  pedidos    Pedido[]
+  carrinho   CarrinhoItem[]
 
   @@map("usuarios")
 }
@@ -61,8 +71,24 @@ model Produto {
   desconto      Int          @default(0)
   fimDesconto   DateTime?
   itensPedido   ItemPedido[]
+  carrinhoItens CarrinhoItem[]
 
   @@map("produto")
+}
+
+model CarrinhoItem {
+  usuarioId  Int
+  produtoId  Int
+  quantidade Int
+  preco      Decimal  @db.Decimal(8, 2)
+  updatedAt  DateTime @updatedAt
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  produto Produto @relation(fields: [produtoId], references: [id], onDelete: Restrict)
+
+  @@id([usuarioId, produtoId])
+  @@index([produtoId])
+  @@map("carrinho_item")
 }
 
 model Localizacao {

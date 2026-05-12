@@ -74,7 +74,7 @@ export default function PromocoesDodia() {
                             )}
 
                             <Link
-                                href='/promocoes'
+                                href='/Promocoes'
                                 className='mt-auto w-full bg-white/5 hover:bg-white/10 text-white text-sm font-semibold text-center py-2.5 rounded-xl no-underline transition-colors'
                             >
                                 Ver Promoção

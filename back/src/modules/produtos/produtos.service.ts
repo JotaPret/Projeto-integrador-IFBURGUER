@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
+import { Prisma } from '../../generated/prisma/client';
 
 @Injectable()
 export class ProdutosService {
@@ -26,6 +27,15 @@ export class ProdutosService {
   findOne(id: number) {
     return this.prisma.produto.findUnique({
       where: { id },
+    });
+  }
+
+  setAvaliacao(id: number, avaliacao: number) {
+    return this.prisma.produto.update({
+      where: { id },
+      data: {
+        avaliacao: new Prisma.Decimal(String(avaliacao)),
+      },
     });
   }
 

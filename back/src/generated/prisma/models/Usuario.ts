@@ -28,10 +28,12 @@ export type AggregateUsuario = {
 
 export type UsuarioAvgAggregateOutputType = {
   id: number | null
+  pontos: number | null
 }
 
 export type UsuarioSumAggregateOutputType = {
   id: number | null
+  pontos: number | null
 }
 
 export type UsuarioMinAggregateOutputType = {
@@ -40,9 +42,10 @@ export type UsuarioMinAggregateOutputType = {
   email: string | null
   telefone: string | null
   senhaHash: string | null
-  role: $Enums.Role | null
-  fotoPerfil: string | null
   createdAt: Date | null
+  fotoPerfil: string | null
+  role: $Enums.Role | null
+  pontos: number | null
 }
 
 export type UsuarioMaxAggregateOutputType = {
@@ -51,9 +54,10 @@ export type UsuarioMaxAggregateOutputType = {
   email: string | null
   telefone: string | null
   senhaHash: string | null
-  role: $Enums.Role | null
-  fotoPerfil: string | null
   createdAt: Date | null
+  fotoPerfil: string | null
+  role: $Enums.Role | null
+  pontos: number | null
 }
 
 export type UsuarioCountAggregateOutputType = {
@@ -62,19 +66,22 @@ export type UsuarioCountAggregateOutputType = {
   email: number
   telefone: number
   senhaHash: number
-  role: number
-  fotoPerfil: number
   createdAt: number
+  fotoPerfil: number
+  role: number
+  pontos: number
   _all: number
 }
 
 
 export type UsuarioAvgAggregateInputType = {
   id?: true
+  pontos?: true
 }
 
 export type UsuarioSumAggregateInputType = {
   id?: true
+  pontos?: true
 }
 
 export type UsuarioMinAggregateInputType = {
@@ -83,9 +90,10 @@ export type UsuarioMinAggregateInputType = {
   email?: true
   telefone?: true
   senhaHash?: true
-  role?: true
-  fotoPerfil?: true
   createdAt?: true
+  fotoPerfil?: true
+  role?: true
+  pontos?: true
 }
 
 export type UsuarioMaxAggregateInputType = {
@@ -94,9 +102,10 @@ export type UsuarioMaxAggregateInputType = {
   email?: true
   telefone?: true
   senhaHash?: true
-  role?: true
-  fotoPerfil?: true
   createdAt?: true
+  fotoPerfil?: true
+  role?: true
+  pontos?: true
 }
 
 export type UsuarioCountAggregateInputType = {
@@ -105,9 +114,10 @@ export type UsuarioCountAggregateInputType = {
   email?: true
   telefone?: true
   senhaHash?: true
-  role?: true
-  fotoPerfil?: true
   createdAt?: true
+  fotoPerfil?: true
+  role?: true
+  pontos?: true
   _all?: true
 }
 
@@ -203,9 +213,10 @@ export type UsuarioGroupByOutputType = {
   email: string | null
   telefone: string | null
   senhaHash: string | null
-  role: $Enums.Role
-  fotoPerfil: string | null
   createdAt: Date
+  fotoPerfil: string | null
+  role: $Enums.Role
+  pontos: number
   _count: UsuarioCountAggregateOutputType | null
   _avg: UsuarioAvgAggregateOutputType | null
   _sum: UsuarioSumAggregateOutputType | null
@@ -237,10 +248,12 @@ export type UsuarioWhereInput = {
   email?: Prisma.StringNullableFilter<"Usuario"> | string | null
   telefone?: Prisma.StringNullableFilter<"Usuario"> | string | null
   senhaHash?: Prisma.StringNullableFilter<"Usuario"> | string | null
-  role?: Prisma.EnumRoleFilter<"Usuario"> | $Enums.Role
-  fotoPerfil?: Prisma.StringNullableFilter<"Usuario"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Usuario"> | Date | string
+  fotoPerfil?: Prisma.StringNullableFilter<"Usuario"> | string | null
+  role?: Prisma.EnumRoleFilter<"Usuario"> | $Enums.Role
+  pontos?: Prisma.IntFilter<"Usuario"> | number
   pedidos?: Prisma.PedidoListRelationFilter
+  carrinho?: Prisma.CarrinhoItemListRelationFilter
 }
 
 export type UsuarioOrderByWithRelationInput = {
@@ -249,10 +262,12 @@ export type UsuarioOrderByWithRelationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   telefone?: Prisma.SortOrderInput | Prisma.SortOrder
   senhaHash?: Prisma.SortOrderInput | Prisma.SortOrder
-  role?: Prisma.SortOrder
-  fotoPerfil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrderInput | Prisma.SortOrder
+  role?: Prisma.SortOrder
+  pontos?: Prisma.SortOrder
   pedidos?: Prisma.PedidoOrderByRelationAggregateInput
+  carrinho?: Prisma.CarrinhoItemOrderByRelationAggregateInput
   _relevance?: Prisma.UsuarioOrderByRelevanceInput
 }
 
@@ -265,10 +280,12 @@ export type UsuarioWhereUniqueInput = Prisma.AtLeast<{
   nome?: Prisma.StringFilter<"Usuario"> | string
   telefone?: Prisma.StringNullableFilter<"Usuario"> | string | null
   senhaHash?: Prisma.StringNullableFilter<"Usuario"> | string | null
-  role?: Prisma.EnumRoleFilter<"Usuario"> | $Enums.Role
-  fotoPerfil?: Prisma.StringNullableFilter<"Usuario"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Usuario"> | Date | string
+  fotoPerfil?: Prisma.StringNullableFilter<"Usuario"> | string | null
+  role?: Prisma.EnumRoleFilter<"Usuario"> | $Enums.Role
+  pontos?: Prisma.IntFilter<"Usuario"> | number
   pedidos?: Prisma.PedidoListRelationFilter
+  carrinho?: Prisma.CarrinhoItemListRelationFilter
 }, "id" | "email">
 
 export type UsuarioOrderByWithAggregationInput = {
@@ -277,9 +294,10 @@ export type UsuarioOrderByWithAggregationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   telefone?: Prisma.SortOrderInput | Prisma.SortOrder
   senhaHash?: Prisma.SortOrderInput | Prisma.SortOrder
-  role?: Prisma.SortOrder
-  fotoPerfil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrderInput | Prisma.SortOrder
+  role?: Prisma.SortOrder
+  pontos?: Prisma.SortOrder
   _count?: Prisma.UsuarioCountOrderByAggregateInput
   _avg?: Prisma.UsuarioAvgOrderByAggregateInput
   _max?: Prisma.UsuarioMaxOrderByAggregateInput
@@ -296,9 +314,10 @@ export type UsuarioScalarWhereWithAggregatesInput = {
   email?: Prisma.StringNullableWithAggregatesFilter<"Usuario"> | string | null
   telefone?: Prisma.StringNullableWithAggregatesFilter<"Usuario"> | string | null
   senhaHash?: Prisma.StringNullableWithAggregatesFilter<"Usuario"> | string | null
-  role?: Prisma.EnumRoleWithAggregatesFilter<"Usuario"> | $Enums.Role
-  fotoPerfil?: Prisma.StringNullableWithAggregatesFilter<"Usuario"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Usuario"> | Date | string
+  fotoPerfil?: Prisma.StringNullableWithAggregatesFilter<"Usuario"> | string | null
+  role?: Prisma.EnumRoleWithAggregatesFilter<"Usuario"> | $Enums.Role
+  pontos?: Prisma.IntWithAggregatesFilter<"Usuario"> | number
 }
 
 export type UsuarioCreateInput = {
@@ -306,10 +325,12 @@ export type UsuarioCreateInput = {
   email?: string | null
   telefone?: string | null
   senhaHash?: string | null
-  role?: $Enums.Role
-  fotoPerfil?: string | null
   createdAt?: Date | string
+  fotoPerfil?: string | null
+  role?: $Enums.Role
+  pontos?: number
   pedidos?: Prisma.PedidoCreateNestedManyWithoutUsuarioInput
+  carrinho?: Prisma.CarrinhoItemCreateNestedManyWithoutUsuarioInput
 }
 
 export type UsuarioUncheckedCreateInput = {
@@ -318,10 +339,12 @@ export type UsuarioUncheckedCreateInput = {
   email?: string | null
   telefone?: string | null
   senhaHash?: string | null
-  role?: $Enums.Role
-  fotoPerfil?: string | null
   createdAt?: Date | string
+  fotoPerfil?: string | null
+  role?: $Enums.Role
+  pontos?: number
   pedidos?: Prisma.PedidoUncheckedCreateNestedManyWithoutUsuarioInput
+  carrinho?: Prisma.CarrinhoItemUncheckedCreateNestedManyWithoutUsuarioInput
 }
 
 export type UsuarioUpdateInput = {
@@ -329,10 +352,12 @@ export type UsuarioUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senhaHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  pontos?: Prisma.IntFieldUpdateOperationsInput | number
   pedidos?: Prisma.PedidoUpdateManyWithoutUsuarioNestedInput
+  carrinho?: Prisma.CarrinhoItemUpdateManyWithoutUsuarioNestedInput
 }
 
 export type UsuarioUncheckedUpdateInput = {
@@ -341,10 +366,12 @@ export type UsuarioUncheckedUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senhaHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  pontos?: Prisma.IntFieldUpdateOperationsInput | number
   pedidos?: Prisma.PedidoUncheckedUpdateManyWithoutUsuarioNestedInput
+  carrinho?: Prisma.CarrinhoItemUncheckedUpdateManyWithoutUsuarioNestedInput
 }
 
 export type UsuarioCreateManyInput = {
@@ -353,9 +380,10 @@ export type UsuarioCreateManyInput = {
   email?: string | null
   telefone?: string | null
   senhaHash?: string | null
-  role?: $Enums.Role
-  fotoPerfil?: string | null
   createdAt?: Date | string
+  fotoPerfil?: string | null
+  role?: $Enums.Role
+  pontos?: number
 }
 
 export type UsuarioUpdateManyMutationInput = {
@@ -363,9 +391,10 @@ export type UsuarioUpdateManyMutationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senhaHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  pontos?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type UsuarioUncheckedUpdateManyInput = {
@@ -374,9 +403,10 @@ export type UsuarioUncheckedUpdateManyInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senhaHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  pontos?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type UsuarioOrderByRelevanceInput = {
@@ -391,13 +421,15 @@ export type UsuarioCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   telefone?: Prisma.SortOrder
   senhaHash?: Prisma.SortOrder
-  role?: Prisma.SortOrder
-  fotoPerfil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  pontos?: Prisma.SortOrder
 }
 
 export type UsuarioAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  pontos?: Prisma.SortOrder
 }
 
 export type UsuarioMaxOrderByAggregateInput = {
@@ -406,9 +438,10 @@ export type UsuarioMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   telefone?: Prisma.SortOrder
   senhaHash?: Prisma.SortOrder
-  role?: Prisma.SortOrder
-  fotoPerfil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  pontos?: Prisma.SortOrder
 }
 
 export type UsuarioMinOrderByAggregateInput = {
@@ -417,13 +450,15 @@ export type UsuarioMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   telefone?: Prisma.SortOrder
   senhaHash?: Prisma.SortOrder
-  role?: Prisma.SortOrder
-  fotoPerfil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  pontos?: Prisma.SortOrder
 }
 
 export type UsuarioSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  pontos?: Prisma.SortOrder
 }
 
 export type UsuarioScalarRelationFilter = {
@@ -439,12 +474,12 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
-export type EnumRoleFieldUpdateOperationsInput = {
-  set?: $Enums.Role
-}
-
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type EnumRoleFieldUpdateOperationsInput = {
+  set?: $Enums.Role
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -469,14 +504,30 @@ export type UsuarioUpdateOneRequiredWithoutPedidosNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutPedidosInput, Prisma.UsuarioUpdateWithoutPedidosInput>, Prisma.UsuarioUncheckedUpdateWithoutPedidosInput>
 }
 
+export type UsuarioCreateNestedOneWithoutCarrinhoInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutCarrinhoInput, Prisma.UsuarioUncheckedCreateWithoutCarrinhoInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutCarrinhoInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+}
+
+export type UsuarioUpdateOneRequiredWithoutCarrinhoNestedInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutCarrinhoInput, Prisma.UsuarioUncheckedCreateWithoutCarrinhoInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutCarrinhoInput
+  upsert?: Prisma.UsuarioUpsertWithoutCarrinhoInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutCarrinhoInput, Prisma.UsuarioUpdateWithoutCarrinhoInput>, Prisma.UsuarioUncheckedUpdateWithoutCarrinhoInput>
+}
+
 export type UsuarioCreateWithoutPedidosInput = {
   nome: string
   email?: string | null
   telefone?: string | null
   senhaHash?: string | null
-  role?: $Enums.Role
-  fotoPerfil?: string | null
   createdAt?: Date | string
+  fotoPerfil?: string | null
+  role?: $Enums.Role
+  pontos?: number
+  carrinho?: Prisma.CarrinhoItemCreateNestedManyWithoutUsuarioInput
 }
 
 export type UsuarioUncheckedCreateWithoutPedidosInput = {
@@ -485,9 +536,11 @@ export type UsuarioUncheckedCreateWithoutPedidosInput = {
   email?: string | null
   telefone?: string | null
   senhaHash?: string | null
-  role?: $Enums.Role
-  fotoPerfil?: string | null
   createdAt?: Date | string
+  fotoPerfil?: string | null
+  role?: $Enums.Role
+  pontos?: number
+  carrinho?: Prisma.CarrinhoItemUncheckedCreateNestedManyWithoutUsuarioInput
 }
 
 export type UsuarioCreateOrConnectWithoutPedidosInput = {
@@ -511,9 +564,11 @@ export type UsuarioUpdateWithoutPedidosInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senhaHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  pontos?: Prisma.IntFieldUpdateOperationsInput | number
+  carrinho?: Prisma.CarrinhoItemUpdateManyWithoutUsuarioNestedInput
 }
 
 export type UsuarioUncheckedUpdateWithoutPedidosInput = {
@@ -522,9 +577,77 @@ export type UsuarioUncheckedUpdateWithoutPedidosInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senhaHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  pontos?: Prisma.IntFieldUpdateOperationsInput | number
+  carrinho?: Prisma.CarrinhoItemUncheckedUpdateManyWithoutUsuarioNestedInput
+}
+
+export type UsuarioCreateWithoutCarrinhoInput = {
+  nome: string
+  email?: string | null
+  telefone?: string | null
+  senhaHash?: string | null
+  createdAt?: Date | string
+  fotoPerfil?: string | null
+  role?: $Enums.Role
+  pontos?: number
+  pedidos?: Prisma.PedidoCreateNestedManyWithoutUsuarioInput
+}
+
+export type UsuarioUncheckedCreateWithoutCarrinhoInput = {
+  id?: number
+  nome: string
+  email?: string | null
+  telefone?: string | null
+  senhaHash?: string | null
+  createdAt?: Date | string
+  fotoPerfil?: string | null
+  role?: $Enums.Role
+  pontos?: number
+  pedidos?: Prisma.PedidoUncheckedCreateNestedManyWithoutUsuarioInput
+}
+
+export type UsuarioCreateOrConnectWithoutCarrinhoInput = {
+  where: Prisma.UsuarioWhereUniqueInput
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutCarrinhoInput, Prisma.UsuarioUncheckedCreateWithoutCarrinhoInput>
+}
+
+export type UsuarioUpsertWithoutCarrinhoInput = {
+  update: Prisma.XOR<Prisma.UsuarioUpdateWithoutCarrinhoInput, Prisma.UsuarioUncheckedUpdateWithoutCarrinhoInput>
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutCarrinhoInput, Prisma.UsuarioUncheckedCreateWithoutCarrinhoInput>
+  where?: Prisma.UsuarioWhereInput
+}
+
+export type UsuarioUpdateToOneWithWhereWithoutCarrinhoInput = {
+  where?: Prisma.UsuarioWhereInput
+  data: Prisma.XOR<Prisma.UsuarioUpdateWithoutCarrinhoInput, Prisma.UsuarioUncheckedUpdateWithoutCarrinhoInput>
+}
+
+export type UsuarioUpdateWithoutCarrinhoInput = {
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  senhaHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  pontos?: Prisma.IntFieldUpdateOperationsInput | number
+  pedidos?: Prisma.PedidoUpdateManyWithoutUsuarioNestedInput
+}
+
+export type UsuarioUncheckedUpdateWithoutCarrinhoInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  senhaHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  pontos?: Prisma.IntFieldUpdateOperationsInput | number
+  pedidos?: Prisma.PedidoUncheckedUpdateManyWithoutUsuarioNestedInput
 }
 
 
@@ -534,10 +657,12 @@ export type UsuarioUncheckedUpdateWithoutPedidosInput = {
 
 export type UsuarioCountOutputType = {
   pedidos: number
+  carrinho: number
 }
 
 export type UsuarioCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pedidos?: boolean | UsuarioCountOutputTypeCountPedidosArgs
+  carrinho?: boolean | UsuarioCountOutputTypeCountCarrinhoArgs
 }
 
 /**
@@ -557,6 +682,13 @@ export type UsuarioCountOutputTypeCountPedidosArgs<ExtArgs extends runtime.Types
   where?: Prisma.PedidoWhereInput
 }
 
+/**
+ * UsuarioCountOutputType without action
+ */
+export type UsuarioCountOutputTypeCountCarrinhoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CarrinhoItemWhereInput
+}
+
 
 export type UsuarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -564,10 +696,12 @@ export type UsuarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   email?: boolean
   telefone?: boolean
   senhaHash?: boolean
-  role?: boolean
-  fotoPerfil?: boolean
   createdAt?: boolean
+  fotoPerfil?: boolean
+  role?: boolean
+  pontos?: boolean
   pedidos?: boolean | Prisma.Usuario$pedidosArgs<ExtArgs>
+  carrinho?: boolean | Prisma.Usuario$carrinhoArgs<ExtArgs>
   _count?: boolean | Prisma.UsuarioCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["usuario"]>
 
@@ -579,14 +713,16 @@ export type UsuarioSelectScalar = {
   email?: boolean
   telefone?: boolean
   senhaHash?: boolean
-  role?: boolean
-  fotoPerfil?: boolean
   createdAt?: boolean
+  fotoPerfil?: boolean
+  role?: boolean
+  pontos?: boolean
 }
 
-export type UsuarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nome" | "email" | "telefone" | "senhaHash" | "role" | "fotoPerfil" | "createdAt", ExtArgs["result"]["usuario"]>
+export type UsuarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nome" | "email" | "telefone" | "senhaHash" | "createdAt" | "fotoPerfil" | "role" | "pontos", ExtArgs["result"]["usuario"]>
 export type UsuarioInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pedidos?: boolean | Prisma.Usuario$pedidosArgs<ExtArgs>
+  carrinho?: boolean | Prisma.Usuario$carrinhoArgs<ExtArgs>
   _count?: boolean | Prisma.UsuarioCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -594,6 +730,7 @@ export type $UsuarioPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Usuario"
   objects: {
     pedidos: Prisma.$PedidoPayload<ExtArgs>[]
+    carrinho: Prisma.$CarrinhoItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -601,9 +738,10 @@ export type $UsuarioPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     email: string | null
     telefone: string | null
     senhaHash: string | null
-    role: $Enums.Role
-    fotoPerfil: string | null
     createdAt: Date
+    fotoPerfil: string | null
+    role: $Enums.Role
+    pontos: number
   }, ExtArgs["result"]["usuario"]>
   composites: {}
 }
@@ -945,6 +1083,7 @@ readonly fields: UsuarioFieldRefs;
 export interface Prisma__UsuarioClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   pedidos<T extends Prisma.Usuario$pedidosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$pedidosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PedidoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  carrinho<T extends Prisma.Usuario$carrinhoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$carrinhoArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CarrinhoItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -979,9 +1118,10 @@ export interface UsuarioFieldRefs {
   readonly email: Prisma.FieldRef<"Usuario", 'String'>
   readonly telefone: Prisma.FieldRef<"Usuario", 'String'>
   readonly senhaHash: Prisma.FieldRef<"Usuario", 'String'>
-  readonly role: Prisma.FieldRef<"Usuario", 'Role'>
-  readonly fotoPerfil: Prisma.FieldRef<"Usuario", 'String'>
   readonly createdAt: Prisma.FieldRef<"Usuario", 'DateTime'>
+  readonly fotoPerfil: Prisma.FieldRef<"Usuario", 'String'>
+  readonly role: Prisma.FieldRef<"Usuario", 'Role'>
+  readonly pontos: Prisma.FieldRef<"Usuario", 'Int'>
 }
     
 
@@ -1351,6 +1491,30 @@ export type Usuario$pedidosArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.PedidoScalarFieldEnum | Prisma.PedidoScalarFieldEnum[]
+}
+
+/**
+ * Usuario.carrinho
+ */
+export type Usuario$carrinhoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CarrinhoItem
+   */
+  select?: Prisma.CarrinhoItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CarrinhoItem
+   */
+  omit?: Prisma.CarrinhoItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CarrinhoItemInclude<ExtArgs> | null
+  where?: Prisma.CarrinhoItemWhereInput
+  orderBy?: Prisma.CarrinhoItemOrderByWithRelationInput | Prisma.CarrinhoItemOrderByWithRelationInput[]
+  cursor?: Prisma.CarrinhoItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CarrinhoItemScalarFieldEnum | Prisma.CarrinhoItemScalarFieldEnum[]
 }
 
 /**

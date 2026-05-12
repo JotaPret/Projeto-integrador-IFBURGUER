@@ -91,6 +91,7 @@ export default function MaisPedidos() {
                         descricao: String(item.descricao || ''),
                         foto: String(item.foto || ''),
                         preco: Number(item.preco) || 0,
+                        avaliacao: Number(item.avaliacao) || 0,
                         desconto: Number(item.desconto) || 0,
                         fimDesconto: item.fimDesconto || null,
                     }))
@@ -126,6 +127,7 @@ export default function MaisPedidos() {
             description: produto.descricao,
             image: produto.foto,
             price: precoAtual,
+            rating: Number(produto.avaliacao) || 0,
         })
     }
 

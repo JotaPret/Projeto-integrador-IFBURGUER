@@ -60,6 +60,11 @@ export type ItemPedido = Prisma.ItemPedidoModel
  */
 export type Produto = Prisma.ProdutoModel
 /**
+ * Model CarrinhoItem
+ * 
+ */
+export type CarrinhoItem = Prisma.CarrinhoItemModel
+/**
  * Model Localizacao
  * 
  */
